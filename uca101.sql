@@ -16,15 +16,70 @@ COLLATE utf8mb4_0900_ai_ci;
 USE `uca101`;
 
 CREATE TABLE `Usuario` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+	`user_name` VARCHAR(20) NOT NULL,
+	`password` VARCHAR(10) NOT NULL,
+	-- `id_Cientifico` INT NOT NULL,
+	-- `id_Expediente` INT NOT NULL,
+	-- `id_Instalacion` INT NOT NULL,
+	-- `codigo` VARCHAR(20) NOT NULL,
+	-- `fechaInicio` datetime NOT NULL DEFAULT NOW(),
+	-- `fechaFin` datetime DEFAULT NULL,
+	-- `horasTotales` FLOAT DEFAULT '0',
+	-- `presupuesto` FLOAT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Estudiante` (
 	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    `id_EstadoProyecto` INT NOT NULL,
-     FOREIGN KEY (`id_EstadoProyecto`) REFERENCES EstadoProyecto(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT, 
-	`id_Cientifico` INT NOT NULL,
-	`id_Expediente` INT NOT NULL,
-	`id_Instalacion` INT NOT NULL,
-	`codigo` VARCHAR(20) NOT NULL,
-	`fechaInicio` datetime NOT NULL DEFAULT NOW(),
-	`fechaFin` datetime DEFAULT NULL,
-	`horasTotales` FLOAT DEFAULT '0',
-	`presupuesto` FLOAT NOT NULL
+	`id_Usuario` INT NOT NULL, 
+	FOREIGN KEY(`id_Usario`) REFERENCES Usuario(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Profesor` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	`id_Usuario` INT NOT NULL, 
+	FOREIGN KEY(`id_Usario`) REFERENCES Usuario(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `ProfesorAsignatura` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	`id_Profesor` INT NOT NULL, 
+	FOREIGN KEY(`id_Profesor`) REFERENCES Profesor(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+	`id_Asignatura` INT NOT NULL, 
+	FOREIGN KEY(`id_Asignatura`) REFERENCES Asignatura(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Grado` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Tema` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Examen` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Pregunta` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Respuesta` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `Informe` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
