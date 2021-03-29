@@ -1,25 +1,30 @@
+
+
 <?php
+  session_start();
+
+  include("api/Api.class.php");
+  $env = parse_ini_file("../.env");
+  $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+  
   $identificador = "";
   $contraseña = "" ;
   $userid= "1";
   $errorMensaje="";
   $nextPage = false;
+  $_SESSION['api'] = serialize($api);
  
-  function checkUser($email, $pass) {
-    $userpass = "123";
-    $useremail = "elpepe@email.com";
-    return $email == $useremail && $pass == $userpass;
+
+  function setSession($user) {
+    $_SESSION['email'] = $user->getEmail();
+    $_SESSION['password'] = $user->getPassword();
+    $_SESSION['user'] = serialize($user);
   }
 
-  function setSession($email, $pass) {
-    $_SESSION['email'] = $email;
-    $_SESSION['password'] = $pass;
-  }
-
-  function setUserCookie($email, $pass) {
+  function setUserCookie($user) {
     $vencimiento = time() + (30 * 24 * 3600);
-      setcookie('email', $email, $vencimiento);
-      setcookie('password', $pass, $vencimiento);
+      setcookie('email', $user->getEmail(), $vencimiento);
+      setcookie('password', $user->getPassword(), $vencimiento);
   }
 
   function validateLogin($email, $pass) {
@@ -30,8 +35,6 @@
     }
     return $isValid;
   }
-
-  session_start();
 
   if(isset($_SESSION['email']) && isset($_SESSION['password'])) {
     $nextPage = true;
@@ -44,14 +47,14 @@
     $userMail = $_POST['email'];
     $userPass = $_POST['password'];
     $loginIsValid = validateLogin($userMail, $userPass);
-    $userExist = checkUser($userMail, $userPass);
+    $user = $api->getUser($userMail, $userPass);
 
-    if($loginIsValid && $userExist ) {
+    if($loginIsValid && $user ) {
       echo "logeao correctamente";
       if(isset($_POST['recordar'])) {
-        setUserCookie($userMail, $userPass);
+        setUserCookie($user);
       }
-      setSession($userMail, $userPass);
+      setSession($user);
       $nextPage = true;
     }
     else {
