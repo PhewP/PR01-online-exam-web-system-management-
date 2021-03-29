@@ -32,5 +32,10 @@
             $this->password = $password;
         }
 
+        public function __toString()
+        {
+            return "__toString = $this->email - $this->rol";
+        }
+
     }
 ?>
