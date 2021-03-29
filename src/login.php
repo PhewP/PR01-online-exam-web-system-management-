@@ -1,10 +1,10 @@
-
-
 <?php
   session_start();
 
   include("api/Api.class.php");
+
   $env = parse_ini_file("../.env");
+
   $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
   
   $identificador = "";
@@ -63,7 +63,7 @@
   }
 
   if($nextPage) {
-    header("location:dashboard.php");
+    header("location:screen_subjects.php");
     exit;
   }
   else {

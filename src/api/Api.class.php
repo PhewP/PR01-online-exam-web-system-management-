@@ -35,7 +35,7 @@
 
             self::$queryGetUser->closeCursor();
 
-            return null;
+            return NULL;
         }
     }
 ?>
