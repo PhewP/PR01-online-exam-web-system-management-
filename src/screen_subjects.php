@@ -14,56 +14,74 @@
     <div class="container has-text-centered">
       <div class="column is-4 is-offset-4">
 
-        <?php
-          $connection = mysqli_connect("localhost", "root", "", "uca101")
-          or die ("Cannot connect to server");
+<?php
+  session_start();
 
-          $instruction = "select nombre 
-          from asignatura 
-          where id in
-          (select id_Asignatura
-          from usuarioasignatura
-          where id_Usuario =
-          (select id
-          from usuario))";
-          $query = mysqli_query($connection, $instruction)
-          or die ("Query failure");
+  include("api/Api.class.php");
 
-          $instruction2 = "select rol from usuario";
-          $query2 = mysqli_query($connection, $instruction2)
-          or die ("Query failure");         
-          $rol = mysqli_fetch_row($query2);
+  $env = parse_ini_file("../.env");
 
-          if($rol[0] == "profesor" )
-          {
-            while($subject = mysqli_fetch_assoc($query))
-            {
-              ?>
-                <div class="field">
-                  <input class="button if-block is-info" type="button" 
-                  onclick = "window.location.href = 'screen_teacher.php'" 
-                  value = <?php print $subject['nombre']; ?>>
-                </div>
-              <?php 
-              echo "<br>";
-            }
-          }else
-          {
-            while($subject = mysqli_fetch_assoc($query))
-            {
-              ?>
-                  <div class="field">
-                    <input class="button if-block is-info" type="button" 
-                    onclick = "window.location.href = 'screen_student.php'" 
-                    value = <?php print $subject['nombre']; ?>>
-                  </div>
-              <?php 
-              echo "<br>";
-            }
-          }
-          mysqli_close ($connection);
-        ?>
-      
+  $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+
+  $user = unserialize($_SESSION['user']);
+
+  $subjects = $user->getAsignaturas();
+
+  if($user->getRol() == 'profesor')
+  {
+    foreach($subjects as $subject)
+    {
+      ?>
+        <div class="field">
+          <input class="button if-block is-info" type="button" 
+          onclick = "window.location.href = 'screen_teacher.php'" 
+          value = <?php print $subject->getName(); ?> type = "submit">
+        </div>
+      <?php 
+        echo "<br>";
+    }
+  }else
+  {
+    foreach($subjects as $subject)
+    {
+      ?>
+        <div class="field">
+          <input class="button if-block is-info" type="button" 
+          onclick = "window.location.href = 'screen_student.php'"
+          value = <?php print $subject->getName(); ?> type = "submit">
+        </div>
+      <?php 
+        echo "<br>";
+    }
+  }
+    /* if($user->getRol() == "profesor" )
+  {
+    while($subject = mysqli_fetch_assoc($consulta))
+    {
+      ?>
+        <div class="field">
+          <input class="button if-block is-info" type="button" 
+          onclick = "window.location.href = 'screen_teacher.php'" 
+          value = <?php print $subject['nombre']; ?>>
+        </div>
+      <?php 
+      echo "<br>";
+    }
+  }else
+  {
+    while($subject = mysqli_fetch_assoc($consulta))
+    {
+      ?>
+          <div class="field">
+            <input class="button if-block is-info" type="button" 
+            onclick = "window.location.href = 'screen_student.php'" 
+            value = <?php print $subject['nombre']; ?>>
+          </div>
+      <?php 
+      echo "<br>";
+    }
+  } */
+  ?>      
       </div>
     </div>
   </div>
