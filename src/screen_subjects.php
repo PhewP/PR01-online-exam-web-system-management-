@@ -34,7 +34,7 @@
       ?>
         <div class="field">
           <input class="button if-block is-info" type="button" 
-          onclick = "window.location.href = 'screen_teacher.php'" 
+          onclick = "header('location:screen_teacher.php')" 
           value = <?php print $subject->getName(); ?>>
         </div>
       <?php 
@@ -47,7 +47,7 @@
       ?>
         <div class="field">
           <input class="button if-block is-info" type="button" 
-          onclick = "window.location.href = 'screen_student.php'" 
+          onclick = "header('location:screen_student.php')" 
           value = <?php print $subject->getName(); ?>>
         </div>
       <?php 
