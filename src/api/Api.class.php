@@ -14,9 +14,9 @@
                 self::$conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                 self::$queryGetUser = self::$conexion->prepare("SELECT * FROM  usuario where email = :email AND password = :password");
-                self::$queryGetSubjects = self::$conexion->prepare("SELECT * FROM asignatura s1 
+                self::$queryGetSubjects = self::$conexion->prepare("SELECT s1.* FROM asignatura s1 
                 inner join usuarioasignatura ua on s1.id = ua.id_Asignatura
-                inner join usuario us on us.id = ua.id_Usuario and us.id=:id");
+                inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
 
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
