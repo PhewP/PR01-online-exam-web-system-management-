@@ -21,8 +21,6 @@
 
   $env = parse_ini_file("../.env");
 
-  $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
-
   $user = unserialize($_SESSION['user']);
 
   $subjects = $user->getAsignaturas();

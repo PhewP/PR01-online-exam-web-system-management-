@@ -40,7 +40,8 @@
     $nextPage = true;
   } 
   else if (isset($_COOKIE['email']) && isset($_COOKIE['password'])) {
-    setSession($_COOKIE['email'], $_COOKIE['password']);
+    $user = $api->getUser($_COOKIE['email'], $_COOKIE['password']);
+    setSession($user);
     $nextPage = true;
   }
   else if(isset($_POST['login'])) {

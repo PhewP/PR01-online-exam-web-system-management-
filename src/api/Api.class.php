@@ -42,17 +42,17 @@
         public function getUser($email, $password) {
 
             self::$queryGetUser->execute(array('email' => $email, 'password' =>$password));
+            $newUser = NULL;
 
             if(self::$queryGetUser->rowCount() > 0) {
                 $user = self::$queryGetUser->fetch();
                 $asignaturas = $this->getSubjects($user['id']);
-
-                return new User($user['id'], $user['email'], $user['password'], $user['rol'], $asignaturas);
+                $newUser = new User($user['id'], $user['email'], $user['password'], $user['rol'], $asignaturas);
             }
 
             self::$queryGetUser->closeCursor();
 
-            return NULL;
+            return $newUser;
         }
     }
 ?>
