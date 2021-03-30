@@ -25,7 +25,7 @@
 
   $user = unserialize($_SESSION['user']);
 
-  $subjects = $api->getSubjects($user->getId());
+  $subjects = $user->getAsignaturas();
 
   if($user->getRol() == 'profesor')
   {
@@ -34,8 +34,8 @@
       ?>
         <div class="field">
           <input class="button if-block is-info" type="button" 
-          onclick = "header('location:screen_teacher.php')" 
-          value = <?php print $subject->getName(); ?>>
+          onclick = "window.location.href = 'screen_teacher.php'" 
+          value = <?php print $subject->getName(); ?> type = "submit">
         </div>
       <?php 
         echo "<br>";
@@ -47,8 +47,8 @@
       ?>
         <div class="field">
           <input class="button if-block is-info" type="button" 
-          onclick = "header('location:screen_student.php')" 
-          value = <?php print $subject->getName(); ?>>
+          onclick = "window.location.href = 'screen_student.php'"
+          value = <?php print $subject->getName(); ?> type = "submit">
         </div>
       <?php 
         echo "<br>";
