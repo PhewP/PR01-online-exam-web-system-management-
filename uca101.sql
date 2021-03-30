@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 30-03-2021 a las 08:53:15
+-- Tiempo de generación: 30-03-2021 a las 16:24:01
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 7.2.19
 
@@ -11,16 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
-
--- --
--- Base de datos: `uca101`
--- --
-
--- CREATE DATABASE IF NOT EXISTS `uca101`
-CREATE DATABASE IF NOT EXISTS `uca101`
-DEFAULT CHARACTER SET utf8
-COLLATE utf8_spanish_ci;
-USE `uca101`;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -32,7 +22,10 @@ USE `uca101`;
 -- Base de datos: `uca101`
 --
 
--- --------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS `uca101`
+DEFAULT CHARACTER SET utf8
+COLLATE utf8_spanish_ci;
+USE `uca101`;
 
 --
 -- Estructura de tabla para la tabla `asignatura`
@@ -53,7 +46,8 @@ CREATE TABLE `asignatura` (
 INSERT INTO `asignatura` (`id`, `id_Grado`, `codigo`, `nombre`, `fechaCurso`) VALUES
 (1, 1, '1111', 'PW', 2021),
 (2, 1, '1112', 'AS', 2021),
-(3, 1, '1113', 'POO', 2021);
+(3, 1, '1113', 'POO', 2021),
+(4, 1, '1114', 'DSH', 2021);
 
 -- --------------------------------------------------------
 
@@ -124,7 +118,8 @@ CREATE TABLE `informe` (
 
 CREATE TABLE `pregunta` (
   `id` int(11) NOT NULL,
-  `id_Tema` int(11) NOT NULL
+  `id_Tema` int(11) NOT NULL,
+  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -135,7 +130,9 @@ CREATE TABLE `pregunta` (
 
 CREATE TABLE `respuesta` (
   `id` int(11) NOT NULL,
-  `id_Pregunta` int(11) NOT NULL
+  `id_Pregunta` int(11) NOT NULL,
+  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
+  `verdader` boolean NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -151,17 +148,13 @@ CREATE TABLE `tema` (
   `numero` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
--- --------------------------------------------------------
-
 --
--- Estructura de tabla para la tabla `temapregunta`
+-- Volcado de datos para la tabla `tema`
 --
 
-CREATE TABLE `temapregunta` (
-  `id` int(11) NOT NULL,
-  `id_Tema` int(11) NOT NULL,
-  `id_Pregunta` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+INSERT INTO `tema` (`id`, `id_Asignatura`, `nombre`, `numero`) VALUES
+(1, 3, 'Operadores', 1),
+(2, 3, 'Constructores', 2);
 
 -- --------------------------------------------------------
 
@@ -207,7 +200,8 @@ INSERT INTO `usuarioasignatura` (`id`, `id_Usuario`, `id_Asignatura`) VALUES
 (1, 1, 1),
 (2, 1, 2),
 (3, 2, 3),
-(4, 2, 2);
+(4, 2, 2),
+(5, 2, 4);
 
 --
 -- Índices para tablas volcadas
@@ -270,14 +264,6 @@ ALTER TABLE `tema`
   ADD KEY `id_Asignatura` (`id_Asignatura`);
 
 --
--- Indices de la tabla `temapregunta`
---
-ALTER TABLE `temapregunta`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_Tema` (`id_Tema`),
-  ADD KEY `id_Pregunta` (`id_Pregunta`);
-
---
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -299,7 +285,7 @@ ALTER TABLE `usuarioasignatura`
 -- AUTO_INCREMENT de la tabla `asignatura`
 --
 ALTER TABLE `asignatura`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `examen`
@@ -341,13 +327,7 @@ ALTER TABLE `respuesta`
 -- AUTO_INCREMENT de la tabla `tema`
 --
 ALTER TABLE `tema`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `temapregunta`
---
-ALTER TABLE `temapregunta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
@@ -359,7 +339,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `usuarioasignatura`
 --
 ALTER TABLE `usuarioasignatura`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
@@ -402,13 +382,6 @@ ALTER TABLE `respuesta`
 --
 ALTER TABLE `tema`
   ADD CONSTRAINT `tema_ibfk_1` FOREIGN KEY (`id_Asignatura`) REFERENCES `asignatura` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `temapregunta`
---
-ALTER TABLE `temapregunta`
-  ADD CONSTRAINT `temapregunta_ibfk_1` FOREIGN KEY (`id_Tema`) REFERENCES `tema` (`id`),
-  ADD CONSTRAINT `temapregunta_ibfk_2` FOREIGN KEY (`id_Pregunta`) REFERENCES `pregunta` (`id`);
 
 --
 -- Filtros para la tabla `usuarioasignatura`
