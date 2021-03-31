@@ -17,11 +17,11 @@
         }
 
         public function getLetra() {
-            return $this->letra
+            return $this->letra;
         }
 
         public function setLetra($newLetra) {
-            $this->letra = $letra;
+            $this->letra = $newLetra;
         }
 
         public function getDescripcion() {
