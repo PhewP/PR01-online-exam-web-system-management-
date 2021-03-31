@@ -1,4 +1,6 @@
 <?php
+
+    include("Question.class.php");
     class Exam {
 
         private $titulo;
@@ -13,10 +15,11 @@
         private $asignatura;
         private $id;
 
-        public function __construct($profesor, $numPreguntas, $asignatura, $temas, $descripcion, $fecha_inicio, $fecha_fin) {
+        public function __construct($profesor, $numPreguntas, $asignatura, $titulo, $temas, $descripcion, $fecha_inicio, $fecha_fin) {
             $this->profesor = $profesor;
             $this->$numPreguntas = $numPreguntas;
             $this->asignatura = $asignatura;
+            $this->titulo = $titulo;
             $this->temas = $temas;
             $this->descripcion = $descripcion;
             $this->fecha_fin = $fecha_inicio;

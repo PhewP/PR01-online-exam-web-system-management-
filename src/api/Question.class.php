@@ -1,11 +1,12 @@
 <?php
+    include("Answer.class.php");
     class Question {
         private $enunciado;
         private $tema;
         private $respuestas;
         private $respuestaCorrecta;
 
-        public function __construct($enunciado, $tema, $respuestas, $respuestaCorrecta) {
+        public function __construct($enunciado, $tema, array $respuestas, $respuestaCorrecta) {
             $this->enunciado = $enunciado;
             $this->tema = $tema;
             $this->respuestas = $respuestas;
@@ -36,12 +37,16 @@
             $this->respuestas = $newRespuestas;
         }
 
+        public function setRespuesta(Answer $respuesta) {
+            $this->respuestas[$respuesta->getLetra()] = $respuesta;
+        }
+
         public function getRespuestaCorrecta() {
             return $this->respuestaCorrecta;
         }
 
-        public function setRespuestaCorrecta($newRespuestaCorrecta) {
-            $this->respuestaCorrecta = $newRespuestaCorrecta;
+        public function setRespuestaCorrecta ($newRespuesta) {
+            $this->respuestaCorrecta = $newRespuesta->getLetra();
         }
 
     }
