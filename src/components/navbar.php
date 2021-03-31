@@ -7,6 +7,11 @@ function Navbar() {
     print('</a>');
     print('</div>');
     print('<div id="navbarBasicExample" class="navbar-menu">');
+    print('<div class="navbar-start">');
+    print('<a href="screen_subjects.php" class="navbar-item">');
+    print('Asignaturas');
+    print('</a>');
+    print('</div>');
     print('<div class="navbar-end">');
     print('<div class="navbar-item">');
     print('<a class="button is-primary">');

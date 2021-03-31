@@ -18,6 +18,10 @@
         <script src="https://kit.fontawesome.com/ffaee44ffc.js" crossorigin="anonymous"></script>
       </head>
       <body>
+      <?php
+      include("components/navbar.php");
+        Navbar();
+      ?>
       <div class="container has-text-centered">
           <div class="column is-8 is-offset-2">
             <div class="box">
