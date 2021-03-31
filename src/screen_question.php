@@ -16,7 +16,7 @@
         <div class="field">
             <label class="label">Enunciado</label>
             <div class="control">
-            <textarea class="textarea" placeholder="Escriba el enunciado de la pregunta" name="enunciado"></textarea>
+            <textarea class="textarea" placeholder="Escriba el enunciado de la pregunta" name="enunciado" require></textarea>
             </div>
         </div>
         <div class="field">
@@ -58,17 +58,13 @@
             </div>
         </div>
         </div>
-
         <div class="field is-grouped">
-        <div class="control">
-            <button class="button is-link">Submit</button>
+            <div class="control">
+                <input type="submit" class="button is-link" value="Crear">
+            </div>
+            <a href="login.php" class="button is-link is-light">Atrás</a> 
         </div>
-        </div>
-        
         </form>
-        <div class="control">
-            <button class="button is-link is-light">Atrás</button>
-        </div>
         </div>
       </div>
       </div>

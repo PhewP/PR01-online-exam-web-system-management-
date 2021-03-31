@@ -19,7 +19,7 @@
       </head>
       <body>
       <div class="container has-text-centered">
-          <div class="column is-4 is-offset-4">
+          <div class="column is-8 is-offset-2">
             <div class="box">
                 <h1 class="title">Crear Examen</h1>
         <form action="crear_examen.php" >
@@ -71,7 +71,6 @@
             </div>
         </div>
         </div>
-
         <div class="field">
         <label class="label">Descripción</label>
         <div class="control">
@@ -81,17 +80,13 @@
 
         <div class="field is-grouped">
         <div class="control">
-            <button class="button is-link">Submit</button>
+            <input type="submit" class="button is-link" value="Crear">
         </div>
+        <a href="login.php" class="button is-link is-light">Atrás</a> 
         </div>
-        
         </form>
-        <div class="control">
-            <button class="button is-link is-light">Atrás</button>
-        </div>
         </div>
       </div>
       </div>
     </body>
-
 </html>
