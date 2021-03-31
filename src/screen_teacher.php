@@ -23,7 +23,19 @@
   
   $user = unserialize($_SESSION['user']);
 
-  $subject = unserialize(($_SESSION['subject']));
+  $id = $_POST['subject'];
+
+  $subjects = $user->getAsignaturas();
+
+  foreach($subjects as $subject)
+  {
+    if($subject->getId() == $id) { break; }
+  }
+
+  echo $subject->getId(); 
+  echo "<br>";
+  echo $subject->getName(); 
+
   ?>      
       </div>
     </div>

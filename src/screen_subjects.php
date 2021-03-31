@@ -29,13 +29,14 @@
   {
     foreach($subjects as $subject)
     {
-      ?>
+?>
+      <form action="screen_teacher.php" method="POST">
         <div class="field">
-          <input class="button if-block is-info" type="button" 
-          onclick = "window.location.href = 'screen_teacher.php'" 
-          value = <?php print $subject->getName(); ?> type = "submit">
+          <input type = "hidden" name = "subject" value = "<?php echo $subject->getId()?>">
+          <button class = "button if-block is-info"><?php echo $subject->getName(); ?></button>
         </div>
-      <?php 
+      </form>
+<?php 
         echo "<br>";
     }
   }else
@@ -43,11 +44,12 @@
     foreach($subjects as $subject)
     {
       ?>
+      <form action="screen_student.php" method="POST">
         <div class="field">
-          <input class="button if-block is-info" type="button" 
-          onclick = "window.location.href = 'screen_student.php'"
-          value = <?php print $subject->getName(); ?> type = "submit">
+          <input type = "hidden" name = "subject" value = "<?php echo $subject->getId()?>">
+          <button class = "button if-block is-info"><?php echo $subject->getName(); ?></button>
         </div>
+      </form>
       <?php 
         echo "<br>";
     }
