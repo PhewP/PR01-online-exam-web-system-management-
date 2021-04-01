@@ -10,6 +10,8 @@ function getDatetimeNow() {
 
 function Base($title, $content) {
     include("components/navbar.php");
+    include("api/Api.class.php");
+
     print('
     <!DOCTYPE html>
     <html>
