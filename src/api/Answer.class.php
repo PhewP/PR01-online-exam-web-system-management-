@@ -1,12 +1,12 @@
 <?php
     class Answer {
-        private $idPregunta;
+        // private $idPregunta;
         private $descripcion;
         private $esCorrecta;
         private $letra;
 
-        public function __construct($idPregunta, $descripcion, $letra, $esCorrecta=false) {
-            $this->idPregunta = $idPregunta;
+        public function __construct($descripcion, $letra, $esCorrecta=false) {
+            // $this->idPregunta = $idPregunta;
             $this->descripcion = $descripcion;
             $this->esCorrecta = $esCorrecta;
             $this->letra = $letra;
