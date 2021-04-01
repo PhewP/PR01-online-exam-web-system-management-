@@ -1,11 +1,15 @@
 <?php 
 
     include("User.class.php");
+    include("Question.class.php");
+    include("Answer.class.php");
 
     class Api {
         private static $conexion;
         private static $queryGetUser;
         private static $queryGetSubjects;
+        private static $queryCreateQuestion;
+        private static $queryCreateAnswer;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -17,14 +21,11 @@
                 self::$queryGetSubjects = self::$conexion->prepare("SELECT s1.* FROM asignatura s1 
                 inner join usuarioasignatura ua on s1.id = ua.id_Asignatura
                 inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
-
+                self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_tema, nombre) VALUES(:id_tema, :nombre)");
+                self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadera) VALUES(:id_pregunta, :nombre, :verdadera)");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
-            } finally {
-                self::$conexion = NULL;
-            }
-
-
+            } 
         }
 
         public function getSubjects($userId) {
@@ -53,6 +54,32 @@
             self::$queryGetUser->closeCursor();
 
             return $newUser;
+        }
+
+        public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $tema) {
+            
+            //query crear pregunta con tema.
+            self::$queryCreateQuestion->execute(array('id_tema'=>$tema, 'nombre'=>$nombre));
+            // obtener el id de pregunta
+            $idPregunta = self::$conexion->lastInsertId();
+            
+            $newRespuestas = [];
+            // query crear respuestas con id pregunta
+            // crear objetos respuestas
+            foreach($respuestas as $letra => $respuesta) {
+                $newRespuestas[$letra] = $this->createAnswer($idPregunta, $respuesta, $letra==$respuestaCorrecta ? true : false, $letra);
+            }
+            
+            // crear objeto pregunta que tiene respuestas
+            return new Question($nombre, $tema, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
+            // devolver pregunta.
+        }
+        
+        public function createAnswer($idPregunta, $nombre, $esCorrecta, $letra) {
+            self::$queryCreateAnswer->execute(array('id_pregunta'=>$idPregunta, 'nombre'=>$nombre, 'verdadera'=>$esCorrecta));
+            self::$queryCreateAnswer->execute();
+            self::$queryCreateAnswer->closeCursor();
+            return new Answer($nombre, $letra, $esCorrecta);
         }
     }
 ?>
