@@ -23,7 +23,6 @@ function cleanSession() {
 
 function Navbar() {
     $uri=$_SERVER['REQUEST_URI'];
-    echo $uri;
     $uri = explode("/", $uri);
     $uri = end($uri);
 
