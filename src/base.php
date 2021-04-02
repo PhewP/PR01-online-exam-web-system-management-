@@ -1,4 +1,6 @@
 <?php
+include("components/navbar.php");
+include("api/Api.class.php");
 
 function getDatetimeNow() {
     $tz_object = new DateTimeZone('Europe/Madrid');
@@ -9,8 +11,7 @@ function getDatetimeNow() {
 }
 
 function Base($title, $content) {
-    include("components/navbar.php");
-    include("api/Api.class.php");
+
 ?>
     <!DOCTYPE html>
     <html>
