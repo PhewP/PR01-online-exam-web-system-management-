@@ -21,7 +21,7 @@
                 inner join usuarioasignatura ua on s1.id = ua.id_Asignatura
                 inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
                 self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_tema, nombre) VALUES(:id_tema, :nombre)");
-                self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadera) VALUES(:id_pregunta, :nombre, :verdadera)");
+                self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadero) VALUES(:id_pregunta, :nombre, :verdadero)");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -70,15 +70,16 @@
             }
             
             // crear objeto pregunta que tiene respuestas
-            return new Question($nombre, $tema, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
+            return new Question($idPregunta, $nombre, $tema, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
             // devolver pregunta.
         }
         
         public function createAnswer($idPregunta, $nombre, $esCorrecta, $letra) {
-            self::$queryCreateAnswer->execute(array('id_pregunta'=>$idPregunta, 'nombre'=>$nombre, 'verdadera'=>$esCorrecta));
-            self::$queryCreateAnswer->execute();
+            self::$queryCreateAnswer->execute(array('id_pregunta'=>$idPregunta, 'nombre'=>$nombre, 'verdadero'=>$esCorrecta));
+            $idRespuesta = self::$conexion->lastInsertId();
+            $pregunta = new Answer($idRespuesta, $nombre, $letra, $esCorrecta);
             self::$queryCreateAnswer->closeCursor();
-            return new Answer($nombre, $letra, $esCorrecta);
+            return $pregunta;
         }
     }
 ?>
