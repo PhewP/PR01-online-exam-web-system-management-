@@ -61,7 +61,8 @@ CREATE TABLE `examen` (
   `id_Informe` int(11) DEFAULT NULL,
   `fecha_ini` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL,
-  `nombre` varchar(32) NOT NULL
+  `nombre` varchar(32) NOT NULL,
+  `descripcion` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -119,7 +120,7 @@ CREATE TABLE `informe` (
 CREATE TABLE `pregunta` (
   `id` int(11) NOT NULL,
   `id_Tema` int(11) NOT NULL,
-  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL
+  `nombre` varchar(64) COLLATE utf8_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -144,7 +145,7 @@ CREATE TABLE `respuesta` (
 CREATE TABLE `tema` (
   `id` int(11) NOT NULL,
   `id_Asignatura` int(11) NOT NULL,
-  `nombre` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
+  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
   `numero` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
