@@ -2,7 +2,6 @@
 
     include("User.class.php");
     include("Question.class.php");
-    include("Answer.class.php");
 
     class Api {
         private static $conexion;
