@@ -59,7 +59,6 @@ CREATE TABLE `examen` (
   `id` int(11) NOT NULL,
   `id_Usuario` int(11) NOT NULL,
   `id_Informe` int(11) NOT NULL,
-  `nota` int(11) DEFAULT NULL,
   `fecha_ini` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -132,7 +131,7 @@ CREATE TABLE `respuesta` (
   `id` int(11) NOT NULL,
   `id_Pregunta` int(11) NOT NULL,
   `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
-  `verdader` boolean NOT NULL
+  `verdadero` boolean NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -159,6 +158,19 @@ INSERT INTO `tema` (`id`, `id_Asignatura`, `nombre`, `numero`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `temapregunta`
+--
+
+CREATE TABLE `temapregunta` (
+  `id` int(11) NOT NULL,
+  `id_Tema` int(11) NOT NULL,
+  `id_Pregunta` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- --------------------------------------------------------
+
+
+--
 -- Estructura de tabla para la tabla `usuario`
 --
 
@@ -170,6 +182,17 @@ CREATE TABLE `usuario` (
   `nombre` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
   `apellidos` varchar(64) COLLATE utf8_spanish_ci NOT NULL,
   `rol` set('estudiante','profesor','administrador') COLLATE utf8_spanish_ci NOT NULL DEFAULT 'estudiante'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Estructura de tabla para la tabla `usuario examen`
+--
+
+CREATE TABLE `usuarioexamen` (
+  `id` int(11) NOT NULL,
+  `id_Usuario` int(11) NOT NULL,
+  `id_Examen` int(11) NOT NULL, 
+  `nota` float(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
@@ -231,6 +254,14 @@ ALTER TABLE `examenpregunta`
   ADD KEY `id_Pregunta` (`id_Pregunta`);
 
 --
+-- Indices de la tabla `usuarioexamen`
+--
+ALTER TABLE `usuarioexamen`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_Pregunta` (`id_Usuario`),
+  ADD KEY `id_Examen` (`id_Examen`);
+
+--
 -- Indices de la tabla `grado`
 --
 ALTER TABLE `grado`
@@ -262,6 +293,15 @@ ALTER TABLE `respuesta`
 ALTER TABLE `tema`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_Asignatura` (`id_Asignatura`);
+
+--
+-- Indices de la tabla `temapregunta`
+--
+ALTER TABLE `temapregunta`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_Tema` (`id_Tema`),
+  ADD KEY `id_Pregunta` (`id_Pregunta`);
+
 
 --
 -- Indices de la tabla `usuario`
@@ -330,6 +370,12 @@ ALTER TABLE `tema`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `temapregunta`
+--
+ALTER TABLE `temapregunta`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -340,6 +386,12 @@ ALTER TABLE `usuario`
 --
 ALTER TABLE `usuarioasignatura`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarioexamen`
+--
+ALTER TABLE `usuarioexamen`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
@@ -382,6 +434,20 @@ ALTER TABLE `respuesta`
 --
 ALTER TABLE `tema`
   ADD CONSTRAINT `tema_ibfk_1` FOREIGN KEY (`id_Asignatura`) REFERENCES `asignatura` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `temapregunta`
+--
+ALTER TABLE `temapregunta`
+  ADD CONSTRAINT `temapregunta_ibfk_1` FOREIGN KEY (`id_Tema`) REFERENCES `tema` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `temapregunta_ibfk_2` FOREIGN KEY (`id_Pregunta`) REFERENCES `pregunta` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Filtros para la tabla `usuarioexamen`
+--
+ALTER TABLE `usuarioexamen`
+  ADD CONSTRAINT `usuarioexamen_ibfk_1` FOREIGN KEY (`id_Usuario`) REFERENCES `usuario` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `usuarioexamen_ibfk_2` FOREIGN KEY (`id_Examen`) REFERENCES `examen` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Filtros para la tabla `usuarioasignatura`
