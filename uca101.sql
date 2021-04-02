@@ -62,7 +62,8 @@ CREATE TABLE `examen` (
   `fecha_ini` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL,
   `nombre` varchar(32) NOT NULL,
-  `descripcion` varchar(128) DEFAULT NULL
+  `descripcion` varchar(128) DEFAULT NULL,
+  `id_asignatura` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
