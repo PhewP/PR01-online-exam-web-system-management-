@@ -58,7 +58,7 @@ INSERT INTO `asignatura` (`id`, `id_Grado`, `codigo`, `nombre`, `fechaCurso`) VA
 CREATE TABLE `examen` (
   `id` int(11) NOT NULL,
   `id_Usuario` int(11) NOT NULL,
-  `id_Informe` int(11) NOT NULL,
+  `id_Informe` int(11) DEFAULT NULL,
   `fecha_ini` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
