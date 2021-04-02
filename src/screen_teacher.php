@@ -8,13 +8,13 @@
   
     $user = unserialize($_SESSION['user']);
 
-    $id = $_POST['subject'];
+    $idSubject = $_POST['subject'];
 
     $env = parse_ini_file("../.env");
 
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
-    $exams = $api->getPendingTests($user->getId(), $id);
+    $exams = $api->getPendingTests($user->getId(), $idSubject);
 
     foreach($exams as $exam)
     {
@@ -33,7 +33,7 @@
     echo "<br>";
     echo "<br>";
 
-    $exams = $api->getActiveTests($user->getId(), $id);
+    $exams = $api->getActiveTests($user->getId(), $idSubject);
 
     foreach($exams as $exam)
     {
@@ -52,7 +52,7 @@
     echo "<br>";
     echo "<br>";
 
-    $exams = $api->getNOTActiveTests($user->getId(), $id);
+    $exams = $api->getNOTActiveTests($user->getId(), $idSubject);
     foreach($exams as $exam)
   {
   ?>
@@ -69,7 +69,7 @@
   ?>
     <form action="screen_exam.php" method="POST">
       <div class="field">
-        <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
+        <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
         <button class = "button if-block is-info">Crear Examen</button>
       </div>
     </form>
@@ -79,7 +79,7 @@
     ?>
     <form action="screen_question.php" method="POST">
       <div class="field">
-        <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
+        <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
         <button class = "button if-block is-info">Crear Pregunta</button>
       </div>
     </form>
