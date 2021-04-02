@@ -8,9 +8,9 @@ $env = parse_ini_file("../.env");
 function Asignaturas() 
 {
 
-$user = unserialize($_SESSION['user']);
+  $user = unserialize($_SESSION['user']);
 
-$subjects = $user->getAsignaturas();
+  $subjects = $user->getAsignaturas();
 
   if($user->getRol() == 'profesor')
   {
@@ -19,7 +19,7 @@ $subjects = $user->getAsignaturas();
   ?>
       <form action="screen_teacher.php" method="POST">
         <div class="field">
-          <input type = "hidden" name = "subject" value = "<?php echo $subject->getId()?>">
+          <input type = "hidden" name = "subject" value = "<?php echo $subject->getId(); ?>">
           <button class = "button if-block is-info"><?php echo $subject->getName(); ?></button>
         </div>
       </form>
