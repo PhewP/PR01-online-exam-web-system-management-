@@ -9,6 +9,7 @@
         private static $queryGetSubjects;
         private static $queryCreateQuestion;
         private static $queryCreateAnswer;
+        private static $queryGetThemeSubject;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -22,22 +23,33 @@
                 inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
                 self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_tema, nombre) VALUES(:id_tema, :nombre)");
                 self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadero) VALUES(:id_pregunta, :nombre, :verdadero)");
+                self::$queryGetThemeSubject = self::$conexion->prepare("SELECT * from tema WHERE id_asignatura = :id_asignatura");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
         }
 
+        public function getTemasAsignatura($asignaturaId) {
+            $themes = [];
+            echo $asignaturaId;
+            self::$queryGetThemeSubject->execute(array('id_asignatura' => $asignaturaId));
+            while($tema = self::$queryGetThemeSubject->fetch()){
+                $themes[$tema['numero']] = new Tema($tema['id'], $tema['nombre'], $tema['numero']);
+            }
+            return $themes;
+        }
+        
         public function getSubjects($userId) {
             self::$queryGetSubjects->execute(array('id'=> $userId));
             $subjects = [];
 
             while($asignatura = self::$queryGetSubjects->fetch()) {
-                $subjects[$asignatura['nombre']] = new Subject($asignatura['id'], $asignatura['nombre']);
+                $temas = $this->getTemasAsignatura($asignatura['id']);
+                $subjects[$asignatura['nombre']] = new Subject($asignatura['id'], $asignatura['nombre'], $temas);
             }
-
             return $subjects;
-
         }
+
 
         public function getUser($email, $password) {
 

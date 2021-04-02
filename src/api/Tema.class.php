@@ -14,16 +14,16 @@
             return $this->id;
         }
 
-        public function  getNombre() {
+        public function getNombre() {
             return $this->nombre;
         }
 
         public function getNumero() {
-            return $this->number;
+            return $this->numero;
         }
 
         public function __toString(){
-            return "Id Tema: $this->id \nNombre Tema: $this->nombre \nNumero tema: $this->numbero";
+            return "Id Tema: $this->id \nNombre Tema: $this->nombre \nNumero tema: $this->numero";
         }
     }
 ?>

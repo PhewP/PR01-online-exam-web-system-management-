@@ -45,7 +45,7 @@
         public function __toString() {
 
             return "ID Respuesta: $this->id \nEnunciado: $this->descripcion \n
-            Escorrecta: $this->getEscorrecta \nLetra: $this->letra";
+            Escorrecta: $this->esCorrecta \nLetra: $this->letra";
   
         }
     }
