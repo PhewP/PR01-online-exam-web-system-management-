@@ -5,12 +5,18 @@
         private $tema;
         private $respuestas;
         private $respuestaCorrecta;
+        private $id;
 
-        public function __construct($enunciado, $tema, array $respuestas, $respuestaCorrecta) {
+        public function __construct($id, $enunciado, $tema, array $respuestas, $respuestaCorrecta) {
             $this->enunciado = $enunciado;
             $this->tema = $tema;
             $this->respuestas = $respuestas;
             $this->respuestaCorrecta = $respuestaCorrecta;
+            $this->id = $id;
+        }
+
+        public function getId() {
+            return $this->id;
         }
 
         public function getEnunciado() {
@@ -47,6 +53,18 @@
 
         public function setRespuestaCorrecta ($newRespuesta) {
             $this->respuestaCorrecta = $newRespuesta->getLetra();
+        }
+
+        public function __toString(){
+
+            $pregunta = "Id: $this->id \nEnunciado: $this->enunciado \nTema: $this->tema\n
+            Respuesta Correcta: $this->respuestaCorrecta\n";
+            foreach($this->respuestas as $respuesta) {
+                $pregunta.=$respuesta."\n";
+            }
+
+            return $pregunta;
+    
         }
 
     }

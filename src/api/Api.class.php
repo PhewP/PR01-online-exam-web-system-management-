@@ -9,6 +9,7 @@
         private static $queryGetSubjects;
         private static $queryCreateQuestion;
         private static $queryCreateAnswer;
+        private static $queryGetThemeSubject;
         private static $queryGetActiveTests;
         private static $queryGetNOTActiveTests;
         private static $queryGetQuestions;
@@ -25,6 +26,8 @@
                 inner join usuarioasignatura ua on s1.id = ua.id_Asignatura
                 inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
                 self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_tema, nombre) VALUES(:id_tema, :nombre)");
+                self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadero) VALUES(:id_pregunta, :nombre, :verdadero)");
+                self::$queryGetThemeSubject = self::$conexion->prepare("SELECT * from tema WHERE id_asignatura = :id_asignatura");
                 self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadera) VALUES(:id_pregunta, :nombre, :verdadera)");
                 self::$queryGetActiveTests = self::$conexion->prepare("SELECT e1.* FROM examen e1 
                 INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where NOW() BETWEEN fecha_ini and fecha_fin");
@@ -40,17 +43,27 @@
             } 
         }
 
+        public function getTemasAsignatura($asignaturaId) {
+            $themes = [];
+            echo $asignaturaId;
+            self::$queryGetThemeSubject->execute(array('id_asignatura' => $asignaturaId));
+            while($tema = self::$queryGetThemeSubject->fetch()){
+                $themes[$tema['numero']] = new Tema($tema['id'], $tema['nombre'], $tema['numero']);
+            }
+            return $themes;
+        }
+        
         public function getSubjects($userId) {
             self::$queryGetSubjects->execute(array('id'=> $userId));
             $subjects = [];
 
             while($asignatura = self::$queryGetSubjects->fetch()) {
-                $subjects[$asignatura['nombre']] = new Subject($asignatura['id'], $asignatura['nombre']);
+                $temas = $this->getTemasAsignatura($asignatura['id']);
+                $subjects[$asignatura['nombre']] = new Subject($asignatura['id'], $asignatura['nombre'], $temas);
             }
-
             return $subjects;
-
         }
+
 
         public function getUser($email, $password) {
 
@@ -68,10 +81,10 @@
             return $newUser;
         }
 
-        public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $tema) {
+        public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $temaId) {
             
             //query crear pregunta con tema.
-            self::$queryCreateQuestion->execute(array('id_tema'=>$tema, 'nombre'=>$nombre));
+            self::$queryCreateQuestion->execute(array('id_tema'=>$temaId, 'nombre'=>$nombre));
             // obtener el id de pregunta
             $idPregunta = self::$conexion->lastInsertId();
             
@@ -83,15 +96,16 @@
             }
             
             // crear objeto pregunta que tiene respuestas
-            return new Question($nombre, $tema, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
+            return new Question($idPregunta, $nombre, $temaId, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
             // devolver pregunta.
         }
         
         public function createAnswer($idPregunta, $nombre, $esCorrecta, $letra) {
-            self::$queryCreateAnswer->execute(array('id_pregunta'=>$idPregunta, 'nombre'=>$nombre, 'verdadera'=>$esCorrecta));
-            self::$queryCreateAnswer->execute();
+            self::$queryCreateAnswer->execute(array('id_pregunta'=>$idPregunta, 'nombre'=>$nombre, 'verdadero'=>$esCorrecta));
+            $idRespuesta = self::$conexion->lastInsertId();
+            $pregunta = new Answer($idRespuesta, $nombre, $letra, $esCorrecta);
             self::$queryCreateAnswer->closeCursor();
-            return new Answer($nombre, $letra, $esCorrecta);
+            return $pregunta;
         }
 
         public function getTemasExamen($examenId)
