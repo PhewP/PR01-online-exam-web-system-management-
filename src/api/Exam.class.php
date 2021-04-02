@@ -11,13 +11,14 @@
         private $numPreguntas;
         private $fecha_inicio;
         private $fecha_fin;
-        private $profesor;
+        private $idProfesor;
         private $asignatura;
         private $id;
 
-        public function __construct($profesor, $numPreguntas, $asignatura, $titulo, $temas, $descripcion, $fecha_inicio, $fecha_fin) {
-            $this->profesor = $profesor;
-            $this->$numPreguntas = $numPreguntas;
+        public function __construct($id, $idProfesor, $numPreguntas, $asignatura, $titulo, $temas, $descripcion, $fecha_inicio, $fecha_fin) {
+            $this->id = $id;
+            $this->idProfesor = $idProfesor;
+            $this->numPreguntas = $numPreguntas;
             $this->asignatura = $asignatura;
             $this->titulo = $titulo;
             $this->temas = $temas;
@@ -77,7 +78,7 @@
         }
 
         public function getProfesor() {
-            return $this->profesor;
+            return $this->idProfesor;
         }
 
         public function getNumPreguntas() {

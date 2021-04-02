@@ -19,7 +19,7 @@
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_informe.php" method="POST">
+      <form method="POST">
         <div class="field">
           <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
           <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
@@ -38,7 +38,7 @@
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_informe.php" method="POST">
+      <form action="screen_active_exam.php" method="POST">
         <div class="field">
           <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
           <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
@@ -56,7 +56,7 @@
     foreach($exams as $exam)
   {
   ?>
-    <form action="screen_informe.php" method="POST">
+    <form action="screen_nota.php" method="POST">
       <div class="field">
         <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
         <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
@@ -66,28 +66,8 @@
     echo "<br>";
   }
 
-  ?>
-    <form action="screen_exam.php" method="POST">
-      <div class="field">
-        <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-        <button class = "button if-block is-info">Crear Examen</button>
-      </div>
-    </form>
-  <?php 
-    echo "<br>";
-
-    ?>
-    <form action="screen_question.php" method="POST">
-      <div class="field">
-        <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-        <button class = "button if-block is-info">Crear Pregunta</button>
-      </div>
-    </form>
-  <?php 
-    echo "<br>";
-
 }
 
-Base("Profesor", 'ExamenesActivos');
+Base("Estudiante", 'ExamenesActivos');
 
 ?>
