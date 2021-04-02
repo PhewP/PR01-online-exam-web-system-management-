@@ -1,7 +1,7 @@
 <?php 
 
     include("User.class.php");
-    include("Question.class.php");
+    include("Exam.class.php");
 
     class Api {
         private static $conexion;
@@ -67,10 +67,10 @@
             return $newUser;
         }
 
-        public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $tema) {
+        public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $temaId) {
             
             //query crear pregunta con tema.
-            self::$queryCreateQuestion->execute(array('id_tema'=>$tema, 'nombre'=>$nombre));
+            self::$queryCreateQuestion->execute(array('id_tema'=>$temaId, 'nombre'=>$nombre));
             // obtener el id de pregunta
             $idPregunta = self::$conexion->lastInsertId();
             
@@ -82,7 +82,7 @@
             }
             
             // crear objeto pregunta que tiene respuestas
-            return new Question($idPregunta, $nombre, $tema, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
+            return new Question($idPregunta, $nombre, $temaId, $newRespuestas, $newRespuestas[$respuestaCorrecta]);
             // devolver pregunta.
         }
         

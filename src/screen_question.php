@@ -2,9 +2,23 @@
 include("base.php");
 
 function question () {
+
+session_start();
+
+$idAsignatura = 3;
+$nombreAsignatura = 'POO';
+$asignatura = NULL;
+$user = unserialize($_SESSION['user']);
+
+$userAsignaturas = $user->getAsignaturas();
+foreach($userAsignaturas as $userAsignatura) {
+      if($userAsignatura->getId() == $idAsignatura)
+        $asignatura = $userAsignatura;
+}
+$temas = $asignatura->getTemas();
 ?>
 
-<form action="crear_pregunta.php" method="POST" >
+<form action="screen_question.php" method="POST" >
         <div class="field">
             <label class="label">Enunciado</label>
             <div class="control">
@@ -56,24 +70,59 @@ function question () {
             <div class="select">
             <select name="tema" class="has-text-centered" required>
                 <option disabled>Seleccione un tema</option>
-                <option value="tema 1">Tema 1</option>
-                <option value="tema 2">Tema 2</option>
-                <option value="tema 3">Tema 3</option>
-                <option value="tema 4">Tema 4</option>
+                <?php
+                    foreach($temas as $tema) {
+                ?>
+                <option value="<?php echo $tema->getNumero()?>">Tema <?php echo " ".$tema->getNumero().": ".$tema->getNombre()?></option>
+                <?php 
+                    }
+                ?>
             </select>
             </div>
         </div>
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <input type="submit" class="button is-link" value="Crear">
+                <input type="submit" class="button is-link" name="crear" value="Crear">
             </div>
             <a href="login.php" class="button is-link is-light">Atrás</a> 
         </div>
         </form>
 
 <?php
+
 }
 
-base('Crear Pregunta', 'question');
+function preguntaCreada(){
+?>
+    <div class="field is-grouped">
+            <div class="control">
+            <a href="screen_question.php" class="button is-link">Crear Otra</a> 
+
+            </div>
+            <a href="login.php" class="button is-link is-light">Atrás</a> 
+    </div>
+<?php
+}
+
+if(isset($_POST['crear'])) {
+    $env = parse_ini_file("../.env");
+  
+    $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+    
+
+
+    $respuestas['A'] = $_POST['respuestaA'];
+    $respuestas['B'] = $_POST['respuestaB'];
+    $respuestas['C'] = $_POST['respuestaC'];
+    $respuestas['D'] = $_POST['respuestaD'];
+    $api->createQuestion($_POST['enunciado'],$respuestas, $_POST['respuestaCorrecta'], intval($_POST['tema']));
+    base("Pregunta Creada", 'preguntaCreada');
+}
+else {
+    base('Crear Pregunta', 'question');
+}
+
+
+
 ?>
