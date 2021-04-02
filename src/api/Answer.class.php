@@ -4,12 +4,18 @@
         private $descripcion;
         private $esCorrecta;
         private $letra;
+        private $id;
 
-        public function __construct($descripcion, $letra, $esCorrecta=false) {
+        public function __construct($id, $descripcion, $letra, $esCorrecta=false) {
             // $this->idPregunta = $idPregunta;
+            $this->id = $id;
             $this->descripcion = $descripcion;
             $this->esCorrecta = $esCorrecta;
             $this->letra = $letra;
+        }
+
+        public function getId() {
+            return $this->id;
         }
 
         public function getIdPregunta() {
@@ -34,6 +40,13 @@
 
         public function getEscorrecta() {
             return $this->esCorrecta;
+        }
+
+        public function __toString() {
+
+            return "ID Respuesta: $this->id \nEnunciado: $this->descripcion \n
+            Escorrecta: $this->getEscorrecta \nLetra: $this->letra";
+  
         }
     }
 ?>
