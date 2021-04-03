@@ -75,7 +75,6 @@
 
         public function getTemasAsignatura($asignaturaId) {
             $themes = [];
-            echo $asignaturaId;
             self::$queryGetThemeSubject->execute(array('id_asignatura' => $asignaturaId));
             while($tema = self::$queryGetThemeSubject->fetch()){
                 $themes[$tema['numero']] = new Tema($tema['id'], $tema['nombre'], $tema['numero']);
