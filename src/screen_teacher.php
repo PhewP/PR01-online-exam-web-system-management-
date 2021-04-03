@@ -8,13 +8,26 @@
   
     $user = unserialize($_SESSION['user']);
 
-    $idSubject = $_POST['subject'];
+    if(isset($_POST['subject'])){
+      $idSubject = $_POST['subject'];
+      $_SESSION['asignaturaActual'] = $idSubject;
+    }
+    else {
+      $idSubject = $_SESSION['asignaturaActual'];
+    }
 
     $env = parse_ini_file("../.env");
 
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
     $exams = $api->getPendingTests($user->getId(), $idSubject);
+
+    if($exams){
+      echo "<hr>";
+      ?>
+        <h1 class="title">Examenes Creados</h1> 
+      <?php
+    }
 
     foreach($exams as $exam)
     {
@@ -29,10 +42,15 @@
       echo "<br>";
     }
 
-    echo "<hr>";
-
+    
     $exams = $api->getActiveTests($user->getId(), $idSubject);
 
+    if($exams){
+      echo "<hr>";
+      ?>
+        <h1 class="title">Examenes Activos</h1> 
+      <?php
+    }
     foreach($exams as $exam)
     {
     ?>
@@ -48,9 +66,16 @@
     echo "<hr>";
 
     $exams = $api->getNOTActiveTests($user->getId(), $idSubject);
+
+    if($exams){
+      ?>
+        <h1 class="title">Examenes Finalizados</h1> 
+      <?php
+    }
     foreach($exams as $exam)
   {
   ?>
+
     <form action="screen_inform.php" method="POST">
       <div class="field">
         <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">

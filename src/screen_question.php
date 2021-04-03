@@ -5,7 +5,13 @@ function question () {
 
 session_start();
 
-$idAsignatura = intval($_POST['idSubject']);
+if(isset($POST['idSubject'])) {
+    $idAsignatura = intval($_POST['idSubject']);
+    $_SESSION['asignaturaActual'] = $idAsignatura;
+}
+else {    
+    $idAsignatura = $_SESSION['asignaturaActual'];
+}
 $asignatura = NULL;
 $user = unserialize($_SESSION['user']);
 
