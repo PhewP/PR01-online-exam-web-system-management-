@@ -19,52 +19,48 @@
     foreach($exams as $exam)
     {
     ?>
-      <form method="POST">
+      <form action="screen_modify_exam.php" method="POST">
         <div class="field">
           <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-          <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+          <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
         </div>
       </form>
     <?php 
       echo "<br>";
     }
 
-    echo "<br>";
-    echo "<br>";
-    echo "<br>";
+    echo "<hr>";
 
     $exams = $api->getActiveTests($user->getId(), $id);
 
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_active_exam.php" method="POST">
+      <form>
         <div class="field">
-          <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-          <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+          <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
         </div>
       </form>
     <?php 
       echo "<br>";
     }
 
-    echo "<br>";
-    echo "<br>";
-    echo "<br>";
+    echo "<hr>";
 
     $exams = $api->getNOTActiveTests($user->getId(), $id);
     foreach($exams as $exam)
   {
   ?>
-    <form action="screen_nota.php" method="POST">
+    <form action="screen_inform.php" method="POST">
       <div class="field">
         <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-        <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+        <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
       </div>
     </form>
   <?php 
     echo "<br>";
   }
+    echo "<hr>"; 
 
 }
 
