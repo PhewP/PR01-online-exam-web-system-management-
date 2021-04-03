@@ -8,12 +8,16 @@
         private static $queryGetUser;
         private static $queryGetSubjects;
         private static $queryCreateQuestion;
+        private static $queryGetQuestionTheme;
         private static $queryCreateAnswer;
+        private static $queryGetAnswers;
         private static $queryGetThemeSubject;
         private static $queryGetActiveTests;
         private static $queryGetNOTActiveTests;
         private static $queryGetQuestions;
         private static $queryGetPendingTests;
+        private static $queryCreateExam;
+        private static $queryCreateExamQuestion;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -46,6 +50,14 @@
                 self::$queryGetPendingTests = self::$conexion->prepare("SELECT e1.* FROM examen e1 
                 INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where fecha_fin >= NOW() and e1.id_Asignatura = :id_a");
               
+                self::$queryCreateExam = self::$conexion->prepare("INSERT INTO examen(id_usuario, 
+                                                                    id_asignatura, fecha_ini, fecha_fin, nombre, descripcion) VALUES(:id_usuario, 
+                                                                    :id_asignatura, :fecha_ini, :fecha_fin, :nombre, :descripcion)");
+                
+                self::$queryCreateExamQuestion = self::$conexion->prepare("INSERT INTO examenpregunta(id_examen, id_pregunta) VALUES (:id_examen, :id_pregunta)");                                                
+
+                self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_tema = :id_tema");
+                self::$queryGetAnswers = self::$conexion->prepare("SELECT * from respuesta where id_pregunta = :id_pregunta");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -189,6 +201,64 @@
 
             }
             return $tests;
+        }
+
+        public function getQuestionsTheme($temaId) {
+            $preguntas = [];
+            $respuestaCorrecta = NULL;
+
+            self::$queryGetQuestionTheme->execute(array('id_tema'=>$temaId));
+
+            while($pregunta = self::$queryGetQuestionTheme->fetch()) {
+                $idPregunta = $pregunta['id'];
+                $respuestas = [];
+                self::$queryGetAnswers->execute(array('id_pregunta'=>$idPregunta));
+                while($respuesta = self::$queryGetAnswers->fetch()){
+                    if($respuesta['verdadero']){
+                        $respuestaCorrecta = new Answer($respuesta['id'], $respuesta['nombre'], NULL, true);
+                    }
+                    $respuestas[] = new Answer($respuesta['id'], $respuesta['nombre'], NULL);  
+                }
+                $preguntas[] = new Question($pregunta['id'], $pregunta['nombre'], $temaId, $respuestas, $respuestaCorrecta);
+            }
+
+            return $preguntas;
+        }
+
+        public function createExam($userId, $subjectId, $fechaIni, $fechaFin, $nombre, $descripcion, $temasId, $numPreguntas) {
+            $preguntasTema = [];
+            foreach($temasId as $temaId) {
+                $preguntasTema = array_merge($preguntasTema, $this->getQuestionsTheme(intval($temaId)));
+            }
+            shuffle($preguntasTema);
+            $preguntasTema = array_slice($preguntasTema, 0, $numPreguntas);
+
+            self::$queryCreateExam->execute(array('id_usuario' => $userId, 
+            'id_asignatura'=>$subjectId, 'fecha_ini'=>$fechaIni, 'fecha_fin'=>$fechaFin, 
+            'nombre'=>$nombre, 'descripcion'=>$descripcion));
+            $idExamen = self::$conexion->lastInsertId();
+
+            $res = self::$conexion->query("SELECT * FROM asignatura WHERE id = $subjectId");
+            $asignatura = $res->fetch();
+            $res ->closeCursor();
+            $res = self::$conexion->query("SELECT * FROM tema WHERE id_asignatura = $subjectId");
+
+            while($tema = $res->fetch()){
+                $temas[$tema['numero']] = new Tema($tema['id'], $tema['nombre'], $tema['numero']);
+            }
+
+    
+            $newAsignatura = new Subject($asignatura['id'], $asignatura['nombre'], $temas);
+
+
+            $newExamen = new Exam($idExamen, $userId, $numPreguntas, $newAsignatura, $nombre, $temas, $descripcion, $fechaIni, $fechaFin);
+
+            foreach($preguntasTema as $pregunta){
+                self::$queryCreateExamQuestion->execute(array('id_examen'=>$idExamen, 'id_pregunta'=>$pregunta->getId()));
+            }
+
+            return $newExamen;
+
         }
     }
 ?>
