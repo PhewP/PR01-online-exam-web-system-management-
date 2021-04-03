@@ -18,6 +18,7 @@
         private static $queryGetPendingTests;
         private static $queryCreateExam;
         private static $queryCreateExamQuestion;
+        private static $queryGetMark;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -58,6 +59,7 @@
 
                 self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_tema = :id_tema");
                 self::$queryGetAnswers = self::$conexion->prepare("SELECT * from respuesta where id_pregunta = :id_pregunta");
+                self::$queryGetMark = self::$conexion->prepare("SELECT nota FROM usuarioexamen ue WHERE ue.id_Usuario = :u_id and ue.id_Examen = :e_id");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -259,6 +261,12 @@
 
             return $newExamen;
 
+        }
+
+        public function getMark($userId, $examId)
+        {
+            self::$queryGetNOTActiveTests->execute(array('u_id'=> $userId, 'e_id' => $examId));
+            return $nota = self::$queryGetMark->fetch();
         }
     }
 ?>
