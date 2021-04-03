@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 30-03-2021 a las 16:24:01
+-- Tiempo de generación: 02-04-2021 a las 21:33:50
 -- Versión del servidor: 5.7.24
 -- Versión de PHP: 7.2.19
 
@@ -26,6 +26,8 @@ CREATE DATABASE IF NOT EXISTS `uca101`
 DEFAULT CHARACTER SET utf8
 COLLATE utf8_spanish_ci;
 USE `uca101`;
+
+-- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `asignatura`
@@ -58,13 +60,20 @@ INSERT INTO `asignatura` (`id`, `id_Grado`, `codigo`, `nombre`, `fechaCurso`) VA
 CREATE TABLE `examen` (
   `id` int(11) NOT NULL,
   `id_Usuario` int(11) NOT NULL,
-  `id_Informe` int(11) DEFAULT NULL,
+  `id_asignatura` int(11) NOT NULL,
   `fecha_ini` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL,
-  `nombre` varchar(32) NOT NULL,
-  `descripcion` varchar(128) DEFAULT NULL,
-  `id_asignatura` varchar(11) NOT NULL
+  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
+  `descripcion` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `examen`
+--
+
+INSERT INTO `examen` (`id`, `id_Usuario`, `id_Asignatura`, `fecha_ini`, `fecha_fin`, `nombre`) VALUES
+(2, 2, 3, '2021-04-02 23:40:00', '2021-04-02 23:55:00', 'Tema 1 - Operadores'),
+(3, 2, 3, '2021-04-02 15:00:00', '2021-04-02 15:10:00', 'Tema 2 - Herencia');
 
 -- --------------------------------------------------------
 
@@ -77,6 +86,14 @@ CREATE TABLE `examenpregunta` (
   `id_Examen` int(11) NOT NULL,
   `id_Pregunta` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `examenpregunta`
+--
+
+INSERT INTO `examenpregunta` (`id`, `id_Examen`, `id_Pregunta`) VALUES
+(1, 2, 2),
+(2, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -105,6 +122,7 @@ INSERT INTO `grado` (`id`, `codigo`, `nombre`) VALUES
 
 CREATE TABLE `informe` (
   `id` int(11) NOT NULL,
+  `id_Examen` int(11) NOT NULL,
   `nota_media` float DEFAULT NULL,
   `numero_suspensos` int(11) DEFAULT NULL,
   `numero_aprobados` int(11) DEFAULT NULL,
@@ -121,8 +139,16 @@ CREATE TABLE `informe` (
 CREATE TABLE `pregunta` (
   `id` int(11) NOT NULL,
   `id_Tema` int(11) NOT NULL,
-  `nombre` varchar(64) COLLATE utf8_spanish_ci NOT NULL
+  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `pregunta`
+--
+
+INSERT INTO `pregunta` (`id`, `id_Tema`, `nombre`) VALUES
+(1, 1, '¿Qué es un operador?'),
+(2, 1, '¿Cuántos operadores existen?');
 
 -- --------------------------------------------------------
 
@@ -134,8 +160,22 @@ CREATE TABLE `respuesta` (
   `id` int(11) NOT NULL,
   `id_Pregunta` int(11) NOT NULL,
   `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
-  `verdadero` boolean NOT NULL
+  `verdadero` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `respuesta`
+--
+
+INSERT INTO `respuesta` (`id`, `id_Pregunta`, `nombre`, `verdadero`) VALUES
+(1, 1, 'Primera falsa de la pregunta 1', 0),
+(2, 1, 'Segunda falsa de la pregunta 1', 0),
+(3, 1, 'Tercera falsa de la pregunta 1', 0),
+(4, 1, 'Verdadera', 1),
+(5, 2, '1', 0),
+(6, 2, '5', 0),
+(7, 2, '976', 0),
+(8, 2, 'Verdadera', 1);
 
 -- --------------------------------------------------------
 
@@ -146,7 +186,7 @@ CREATE TABLE `respuesta` (
 CREATE TABLE `tema` (
   `id` int(11) NOT NULL,
   `id_Asignatura` int(11) NOT NULL,
-  `nombre` varchar(32) COLLATE utf8_spanish_ci NOT NULL,
+  `nombre` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
   `numero` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
@@ -172,7 +212,6 @@ CREATE TABLE `temapregunta` (
 
 -- --------------------------------------------------------
 
-
 --
 -- Estructura de tabla para la tabla `usuario`
 --
@@ -185,17 +224,6 @@ CREATE TABLE `usuario` (
   `nombre` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
   `apellidos` varchar(64) COLLATE utf8_spanish_ci NOT NULL,
   `rol` set('estudiante','profesor','administrador') COLLATE utf8_spanish_ci NOT NULL DEFAULT 'estudiante'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
---
--- Estructura de tabla para la tabla `usuario examen`
---
-
-CREATE TABLE `usuarioexamen` (
-  `id` int(11) NOT NULL,
-  `id_Usuario` int(11) NOT NULL,
-  `id_Examen` int(11) NOT NULL, 
-  `nota` float(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
@@ -229,6 +257,19 @@ INSERT INTO `usuarioasignatura` (`id`, `id_Usuario`, `id_Asignatura`) VALUES
 (4, 2, 2),
 (5, 2, 4);
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarioexamen`
+--
+
+CREATE TABLE `usuarioexamen` (
+  `id` int(11) NOT NULL,
+  `id_Usuario` int(11) NOT NULL,
+  `id_Examen` int(11) NOT NULL,
+  `nota` float DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
 --
 -- Índices para tablas volcadas
 --
@@ -246,7 +287,7 @@ ALTER TABLE `asignatura`
 ALTER TABLE `examen`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_Usuario` (`id_Usuario`),
-  ADD KEY `id_Informe` (`id_Informe`);
+  ADD KEY `id_Asignatura` (`id_Asignatura`);
 
 --
 -- Indices de la tabla `examenpregunta`
@@ -255,14 +296,6 @@ ALTER TABLE `examenpregunta`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_Examen` (`id_Examen`),
   ADD KEY `id_Pregunta` (`id_Pregunta`);
-
---
--- Indices de la tabla `usuarioexamen`
---
-ALTER TABLE `usuarioexamen`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_Pregunta` (`id_Usuario`),
-  ADD KEY `id_Examen` (`id_Examen`);
 
 --
 -- Indices de la tabla `grado`
@@ -274,7 +307,8 @@ ALTER TABLE `grado`
 -- Indices de la tabla `informe`
 --
 ALTER TABLE `informe`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_Examen` (`id_Examen`);
 
 --
 -- Indices de la tabla `pregunta`
@@ -305,7 +339,6 @@ ALTER TABLE `temapregunta`
   ADD KEY `id_Tema` (`id_Tema`),
   ADD KEY `id_Pregunta` (`id_Pregunta`);
 
-
 --
 -- Indices de la tabla `usuario`
 --
@@ -321,6 +354,14 @@ ALTER TABLE `usuarioasignatura`
   ADD KEY `id_Asignatura` (`id_Asignatura`);
 
 --
+-- Indices de la tabla `usuarioexamen`
+--
+ALTER TABLE `usuarioexamen`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_Pregunta` (`id_Usuario`),
+  ADD KEY `id_Examen` (`id_Examen`);
+
+--
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -334,13 +375,13 @@ ALTER TABLE `asignatura`
 -- AUTO_INCREMENT de la tabla `examen`
 --
 ALTER TABLE `examen`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `examenpregunta`
 --
 ALTER TABLE `examenpregunta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `grado`
@@ -358,13 +399,13 @@ ALTER TABLE `informe`
 -- AUTO_INCREMENT de la tabla `pregunta`
 --
 ALTER TABLE `pregunta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `respuesta`
 --
 ALTER TABLE `respuesta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `tema`
@@ -411,7 +452,7 @@ ALTER TABLE `asignatura`
 --
 ALTER TABLE `examen`
   ADD CONSTRAINT `examen_ibfk_1` FOREIGN KEY (`id_Usuario`) REFERENCES `usuario` (`id`),
-  ADD CONSTRAINT `examen_ibfk_2` FOREIGN KEY (`id_Informe`) REFERENCES `informe` (`id`);
+  ADD CONSTRAINT `examen_ibfk_2` FOREIGN KEY (`id_Asignatura`) REFERENCES `asignatura` (`id`);
 
 --
 -- Filtros para la tabla `examenpregunta`
@@ -442,15 +483,8 @@ ALTER TABLE `tema`
 -- Filtros para la tabla `temapregunta`
 --
 ALTER TABLE `temapregunta`
-  ADD CONSTRAINT `temapregunta_ibfk_1` FOREIGN KEY (`id_Tema`) REFERENCES `tema` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `temapregunta_ibfk_2` FOREIGN KEY (`id_Pregunta`) REFERENCES `pregunta` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
-
---
--- Filtros para la tabla `usuarioexamen`
---
-ALTER TABLE `usuarioexamen`
-  ADD CONSTRAINT `usuarioexamen_ibfk_1` FOREIGN KEY (`id_Usuario`) REFERENCES `usuario` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `usuarioexamen_ibfk_2` FOREIGN KEY (`id_Examen`) REFERENCES `examen` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `temapregunta_ibfk_1` FOREIGN KEY (`id_Tema`) REFERENCES `tema` (`id`),
+  ADD CONSTRAINT `temapregunta_ibfk_2` FOREIGN KEY (`id_Pregunta`) REFERENCES `pregunta` (`id`);
 
 --
 -- Filtros para la tabla `usuarioasignatura`
@@ -458,6 +492,19 @@ ALTER TABLE `usuarioexamen`
 ALTER TABLE `usuarioasignatura`
   ADD CONSTRAINT `usuarioasignatura_ibfk_1` FOREIGN KEY (`id_Usuario`) REFERENCES `usuario` (`id`),
   ADD CONSTRAINT `usuarioasignatura_ibfk_2` FOREIGN KEY (`id_Asignatura`) REFERENCES `asignatura` (`id`);
+
+--
+-- Filtros para la tabla `informe`
+--
+ALTER TABLE `informe`
+ADD CONSTRAINT `informe_ibfk_1` FOREIGN KEY (`id_Examen`) REFERENCES `examen` (`id`);
+
+--
+-- Filtros para la tabla `usuarioexamen`
+--
+ALTER TABLE `usuarioexamen`
+  ADD CONSTRAINT `usuarioexamen_ibfk_1` FOREIGN KEY (`id_Usuario`) REFERENCES `usuario` (`id`),
+  ADD CONSTRAINT `usuarioexamen_ibfk_2` FOREIGN KEY (`id_Examen`) REFERENCES `examen` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
