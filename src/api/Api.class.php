@@ -14,6 +14,7 @@
         private static $queryGetNOTActiveTests;
         private static $queryGetQuestions;
         private static $queryGetPendingTests;
+        private static $queryGetMark;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -38,6 +39,7 @@
                 INNER JOIN examen e ON ep.id_Examen = e.id and e.id = :id");
                 self::$queryGetPendingTests = self::$conexion->prepare("SELECT e1.* FROM examen e1 
                 INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where fecha_fin >= NOW() and e1.id_Asignatura = :id_a");
+                self::$queryGetMark = self::$conexion->prepare("SELECT nota FROM usuarioexamen ue WHERE ue.id_Usuario = :u_id and ue.id_Examen = :e_id");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -181,6 +183,12 @@
 
             }
             return $tests;
+        }
+
+        public function getMark($userId, $examId)
+        {
+            self::$queryGetNOTActiveTests->execute(array('u_id'=> $userId, 'e_id' => $examId));
+            return $nota = self::$queryGetMark->fetch();
         }
     }
 ?>
