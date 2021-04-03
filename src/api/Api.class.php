@@ -18,6 +18,8 @@
         private static $queryGetPendingTests;
         private static $queryCreateExam;
         private static $queryCreateExamQuestion;
+        private static $queryGetAlumnsSubject;
+        private static $queryCreateAlumnExamn;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -58,6 +60,12 @@
 
                 self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_tema = :id_tema");
                 self::$queryGetAnswers = self::$conexion->prepare("SELECT * from respuesta where id_pregunta = :id_pregunta");
+                self::$queryGetAlumnsSubject = self::$conexion->prepare("SELECT u1.* FROM usuario u1
+                INNER JOIN usuarioasignatura ua1 ON u1.id_Usuario = ua1.id_Usuario 
+                WHERE ua1.idAsignatura = :id_asignatura AND ua u1.rol = estudiante ");
+
+                self::$queryCreateAlumnExamn = self::$conexion->prepare("INSERT INTO usuarioexamen(id_usuario, id_asignatura) VALUES(:id_usuario, :id_asignatura");
+
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -259,6 +267,24 @@
 
             return $newExamen;
 
+        }
+
+        public function getAlumnsSubject($subjectId) {
+            $alumns = [];
+
+            self::$queryGetAlumnsSubject->execute(array(':id_asignatura' =>$subjectId));
+
+            while($alumn = self::$queryGetAlumnsSubject->fetch()) {
+                $asignaturas = $this->getSubjects($alumn["id"]);
+                $alumns[$alumn['nombre']] = new User($alumn["id"], $alumn["email"], 
+                                            $alumn["password"], $alumn["rol"], $asignaturas);
+            }
+
+            return $alumns;
+        }
+
+        public function createAlumnExamn($userId, $examId) {
+            self::$queryCreateAlumnExamn->execute(array("id_usuario"=>$userId, "id_asignatura"=>$examId));
         }
     }
 ?>

@@ -1,5 +1,21 @@
 <?php
 
+include("base.php");
+session_start();
+
+$env = parse_ini_file("../.env");
+$api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+$idSubject = $_SESSION['asignaturaActual'];
+
+
+$queryTemas = $api->getTemasAsignatura($idSubject);
+$allTemas = [];
+foreach($queryTemas as $unTema) {
+    $allTemas[] = $unTema->getId();
+}
+
+$_SESSION['allTemas'] = serialize($queryTemas);
+
 
 
 function examenCreado(){
@@ -15,6 +31,8 @@ function examenCreado(){
 }
 
 function CrearExamen() {
+    $allTemas = unserialize($_SESSION['allTemas']);
+
     ?>
     <form action="screen_exam.php" method="POST">
     <div class="field">
@@ -58,8 +76,13 @@ function CrearExamen() {
         <div class="select is-multiple">
         <select name="temas[]" multiple required>
             <option disabled>Seleccione un o varios temas</option>
-            <option value="1">Tema 1</option>
-            <option value="2">Tema 2</option>
+            <?php
+                foreach($allTemas as $tema){
+            ?>
+                <option value=<?php echo $tema->getNumero()?> >Tema <?php echo " ".$tema->getNumero()." ".$tema->getNombre()?></option>
+            <?php
+                }
+            ?>
             <option value="all">Todos</option>
         </select>
         </div>
@@ -81,23 +104,10 @@ function CrearExamen() {
     </form>
 <?php
 }
-    include("base.php");
-    session_start();
-
-    $env = parse_ini_file("../.env");
-
-    $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
-
     if(isset($_POST['crear'])) {
 
-        $idSubject = $_SESSION['asignaturaActual'];
         $user =  unserialize($_SESSION['user']);
         $userId = $user->getId();
-        //Hacer query de crear examen
-        //Mostrar crear otro o atras
-        echo "Examen creado";
-        echo "Asignatura: ".$idSubject;
-        echo "user: ".$user;
 
         $nombre = $_POST['titulo'];
         $numPreguntas = $_POST['numeroPreguntas'];
@@ -106,13 +116,21 @@ function CrearExamen() {
         $fecha_fin = $fecha." ".$_POST['horaFin'];
         $descripcion = $_POST['descripcion'];
 
-        echo $fecha_ini;
-        echo $fecha_fin;
         //Tema es un array de temas
         $temas= $_POST['temas'];
-   
 
+        if(in_array("all", $temas)){
+            $temas = $allTemas;
+        }
+   
         $examen = $api->createExam($userId, $idSubject, $fecha_ini, $fecha_fin, $nombre, $descripcion, $temas, $numPreguntas);
+
+        $alumnsAsig = $api->getAlumnsSubject($idSubject);
+
+        foreach($alumnsAsig as $alumno) {
+            $api->createAlumnExamn($alumno->getId(), $examen->getId());
+        }
+
         Base("Examen creado con Exito", "examenCreado");
     }
     else { 
