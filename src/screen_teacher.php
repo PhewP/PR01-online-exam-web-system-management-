@@ -22,6 +22,13 @@
 
     $exams = $api->getPendingTests($user->getId(), $idSubject);
 
+    if($exams){
+      echo "<hr>";
+      ?>
+        <h1 class="title">Examenes Creados</h1> 
+      <?php
+    }
+
     foreach($exams as $exam)
     {
     ?>
@@ -37,10 +44,11 @@
 
     
     $exams = $api->getActiveTests($user->getId(), $idSubject);
+
     if($exams){
       echo "<hr>";
       ?>
-        <h1 class="title">Examenes Pasados</h1> 
+        <h1 class="title">Examenes Activos</h1> 
       <?php
     }
     foreach($exams as $exam)
@@ -61,7 +69,7 @@
 
     if($exams){
       ?>
-        <h1 class="title">Examenes activos</h1> 
+        <h1 class="title">Examenes Finalizados</h1> 
       <?php
     }
     foreach($exams as $exam)
