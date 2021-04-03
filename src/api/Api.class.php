@@ -34,18 +34,18 @@
                 self::$queryGetThemeSubject = self::$conexion->prepare("SELECT * from tema WHERE id_asignatura = :id_asignatura");
                 
                 self::$queryGetActiveTests = self::$conexion->prepare("SELECT e1.* FROM examen e1 
-                INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where NOW() BETWEEN fecha_ini and fecha_fin");
-                
-                self::$queryGetNOTActiveTests = self::$conexion->prepare("SELECT e1.* FROM examen e1
-                INNER JOIN usuario u2 ON e1.id_Usuario = u2.id and u2.id = :id where fecha_fin <= NOW()");
-                
+                INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where NOW() BETWEEN fecha_ini and fecha_fin and e1.id_Asignatura = :id_a");
+              
+                self::$queryGetNOTActiveTests = self::$conexion->prepare("SELECT e2.* FROM examen e2
+                INNER JOIN usuario u2 ON e2.id_Usuario = u2.id and u2.id = :id where fecha_fin <= NOW() and e2.id_Asignatura = :id_a");
+
                 self::$queryGetQuestions = self::$conexion->prepare("SELECT p.* FROM pregunta p
                 INNER JOIN  examenpregunta ep ON p.id = ep.id_Pregunta
                 INNER JOIN examen e ON ep.id_Examen = e.id and e.id = :id");
                 
                 self::$queryGetPendingTests = self::$conexion->prepare("SELECT e1.* FROM examen e1 
-                INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where fecha_fin >= NOW()");
-                
+                INNER JOIN usuario u1 ON e1.id_Usuario = u1.id and u1.id = :id where fecha_fin >= NOW() and e1.id_Asignatura = :id_a");
+              
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -139,7 +139,7 @@
 
         public function getPendingTests($userId, $subjectId)
         {
-            self::$queryGetPendingTests->execute(array('id'=> $userId));
+            self::$queryGetPendingTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
             $numPreguntas = self::$queryGetUser->rowCount();
             $tema = [];
             $tests = [];
@@ -157,7 +157,7 @@
 
         public function getActiveTests($userId, $subjectId)
         {
-            self::$queryGetActiveTests->execute(array('id'=> $userId));
+            self::$queryGetActiveTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
             $numPreguntas = self::$queryGetUser->rowCount();
             $tema = [];
             $tests = [];
@@ -175,7 +175,7 @@
 
         public function getNOTActiveTests($userId, $subjectId)
         {
-            self::$queryGetNOTActiveTests->execute(array('id'=> $userId));
+            self::$queryGetNOTActiveTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
             $numPreguntas = self::$queryGetUser->rowCount();
             $tema = [];
             $tests = [];

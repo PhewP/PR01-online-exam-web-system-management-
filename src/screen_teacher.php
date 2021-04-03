@@ -19,70 +19,64 @@
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_informe.php" method="POST">
+      <form action="screen_modify_exam.php" method="POST">
         <div class="field">
           <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-          <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+          <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
         </div>
       </form>
     <?php 
       echo "<br>";
     }
 
-    echo "<br>";
-    echo "<br>";
-    echo "<br>";
+    echo "<hr>";
 
     $exams = $api->getActiveTests($user->getId(), $idSubject);
 
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_informe.php" method="POST">
+      <form>
         <div class="field">
-          <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-          <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+          <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
         </div>
       </form>
     <?php 
       echo "<br>";
     }
 
-    echo "<br>";
-    echo "<br>";
-    echo "<br>";
+    echo "<hr>";
 
     $exams = $api->getNOTActiveTests($user->getId(), $idSubject);
     foreach($exams as $exam)
   {
   ?>
-    <form action="screen_informe.php" method="POST">
+    <form action="screen_inform.php" method="POST">
       <div class="field">
         <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
-        <button class = "button if-block is-info"><?php echo $exam->getTitulo(); ?></button>
+        <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
       </div>
     </form>
   <?php 
     echo "<br>";
   }
-
-  ?>
-    <form action="screen_exam.php" method="POST">
-      <div class="field">
-        <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
-        <button class = "button if-block is-info">Crear Examen</button>
-      </div>
-    </form>
-  <?php 
-    echo "<br>";
-
+    echo "<hr>"; 
     ?>
-    <form action="screen_question.php" method="POST">
-      <div class="field">
-        <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
-        <button class = "button if-block is-info">Crear Pregunta</button>
+      <div class="field is-grouped is-grouped-centered">
+        <form action="screen_question.php" method="POST">
+          <div class="control">
+            <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
+            <input type="submit" style="margin: 10px" class="button is-link" value="Crear Pregunta">
+          </div>
+        </form>
+        
+        <form action="screen_exam.php" method="POST">
+          <div class="control">
+          <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
+              <input type="submit" style="margin: 10px" class="button is-link" value="Crear Examen">
+          </div>
+        </form>
       </div>
-    </form>
   <?php 
     echo "<br>";
 
