@@ -5,8 +5,7 @@ function question () {
 
 session_start();
 
-$idAsignatura = 3;
-$nombreAsignatura = 'POO';
+$idAsignatura = intval($_POST['idSubject']);
 $asignatura = NULL;
 $user = unserialize($_SESSION['user']);
 
@@ -110,8 +109,6 @@ if(isset($_POST['crear'])) {
   
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
     
-
-
     $respuestas['A'] = $_POST['respuestaA'];
     $respuestas['B'] = $_POST['respuestaB'];
     $respuestas['C'] = $_POST['respuestaC'];
