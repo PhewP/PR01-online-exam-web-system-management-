@@ -2,6 +2,7 @@
 include('base.php');
 
 function frec_notas($sup, $inf, $notas) {
+  $frecNotas = [];
     foreach($notas as $nota){
         if($nota >=$inf && $nota <=$sup){
             $frecNotas[] = $nota;
@@ -12,16 +13,11 @@ function frec_notas($sup, $inf, $notas) {
 
 function report(){
 
-    // get todos los examenes de un tema de una asignatura
-
     $idExamen = $_POST['idExam'];
     $env = parse_ini_file("../.env");
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
     $notas = $api->getAllMarks($idExamen);
-    // no tengo examenes así que me los invento
-    // Descomentar luego al probarlo con todo junto
-    $notas = array(5.6, 6.4, 6.7, 0.6, 3, 2, 3, 2 ,1 ,6, 8, 8, 7, 9, 10, 9 ,8, 7, 5, 3, 2, 1);
 
     $numExamenes = count($notas);
     $notaMasAlta = max($notas);
@@ -88,5 +84,5 @@ function report(){
         </div>
 <?php
 }
-Base("Report", "report");
+Base("Informe", "report");
 ?>
