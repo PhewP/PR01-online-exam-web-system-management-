@@ -21,6 +21,7 @@
         private static $queryGetAlumnsSubject;
         private static $queryCreateAlumnExamn;
         private static $queryGetMark;
+        private static $queryGetUsersExams;
         private static $queryGetActiveTestsStudent;
         private static $queryGetNOTActiveTestsStudent;
         private static $querySetNota;
@@ -75,6 +76,8 @@
                 self::$queryCreateAlumnExamn = self::$conexion->prepare("INSERT INTO usuarioexamen(id_usuario, id_examen) VALUES(:id_usuario, :id_examen)");
 
                 self::$queryGetMark = self::$conexion->prepare("SELECT nota FROM usuarioexamen ue WHERE ue.id_Usuario = :u_id and ue.id_Examen = :e_id");
+
+                self::$queryGetUsersExams = self::$conexion->prepare("SELECT * FROM  usuarioexamen WHERE id_examen = :id_examen");
                 
                 self::$querySetNota = self::$conexion->prepare("UPDATE usuarioexamen SET nota = :nota where id_Usuario = :u_id and id_Examen = :e_id");
                 
@@ -373,6 +376,17 @@
             }
 
             return $respuestas;
+        }
+
+        public function getAllMarks($examId) {
+            self::$queryGetUsersExams->execute(array('id_examen'=>$examId));
+
+            $notas = [];
+
+            while($examen = self::$queryGetUsersExams->fetch()){
+                $notas[] = $examen['nota'];
+            }
+            return $notas;
         }
     }
 ?>

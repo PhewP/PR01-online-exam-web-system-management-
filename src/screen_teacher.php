@@ -76,9 +76,9 @@
   {
   ?>
 
-    <form action="screen_inform.php" method="POST">
+    <form action="screen_report.php" method="POST">
       <div class="field">
-        <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
+        <input type = "hidden" name = "idExam" value = "<?php echo $exam->getId(); ?>">
         <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
       </div>
     </form>
