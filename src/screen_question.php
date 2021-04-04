@@ -90,7 +90,7 @@ $temas = $asignatura->getTemas();
             <div class="control">
                 <input type="submit" class="button is-link" name="crear" value="Crear">
             </div>
-            <a href="login.php" class="button is-link is-light">Atrás</a> 
+            <a href="screen_teacher.php" class="button is-link is-light">Atrás</a> 
         </div>
         </form>
 

@@ -22,6 +22,9 @@
         private static $queryCreateAlumnExamn;
         private static $queryGetMark;
         private static $queryGetUsersExams;
+        private static $queryGetActiveTestsStudent;
+        private static $queryGetNOTActiveTestsStudent;
+        private static $querySetNota;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -47,6 +50,10 @@
                 self::$queryGetNOTActiveTests = self::$conexion->prepare("SELECT e2.* FROM examen e2
                 INNER JOIN usuario u2 ON e2.id_Usuario = u2.id and u2.id = :id where fecha_fin <= NOW() and e2.id_Asignatura = :id_a");
 
+                self::$queryGetActiveTestsStudent = self::$conexion->prepare("SELECT e1.* FROM examen e1 where NOW() BETWEEN fecha_ini and fecha_fin and e1.id_Asignatura = :id_a");
+
+                self::$queryGetNOTActiveTestsStudent = self::$conexion->prepare("SELECT e2.* FROM examen e2 where fecha_fin <= NOW() and e2.id_Asignatura = :id_a");
+
                 self::$queryGetQuestions = self::$conexion->prepare("SELECT p.* FROM pregunta p
                 INNER JOIN  examenpregunta ep ON p.id = ep.id_Pregunta
                 INNER JOIN examen e ON ep.id_Examen = e.id and e.id = :id");
@@ -63,14 +70,17 @@
                 self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_tema = :id_tema");
                 self::$queryGetAnswers = self::$conexion->prepare("SELECT * from respuesta where id_pregunta = :id_pregunta");
                 self::$queryGetAlumnsSubject = self::$conexion->prepare("SELECT u1.* FROM usuario u1
-                INNER JOIN usuarioasignatura ua1 ON u1.id_Usuario = ua1.id_Usuario 
-                WHERE ua1.idAsignatura = :id_asignatura AND ua u1.rol = estudiante ");
+                INNER JOIN usuarioasignatura ua1 ON u1.id = ua1.id_Usuario 
+                WHERE ua1.id_Asignatura = :id_asignatura AND u1.rol = 'estudiante' ");
 
-                self::$queryCreateAlumnExamn = self::$conexion->prepare("INSERT INTO usuarioexamen(id_usuario, id_asignatura) VALUES(:id_usuario, :id_asignatura");
+                self::$queryCreateAlumnExamn = self::$conexion->prepare("INSERT INTO usuarioexamen(id_usuario, id_examen) VALUES(:id_usuario, :id_examen)");
 
                 self::$queryGetMark = self::$conexion->prepare("SELECT nota FROM usuarioexamen ue WHERE ue.id_Usuario = :u_id and ue.id_Examen = :e_id");
 
                 self::$queryGetUsersExams = self::$conexion->prepare("SELECT * FROM  usuarioexamen WHERE id_examen = :id_examen");
+                
+                self::$querySetNota = self::$conexion->prepare("UPDATE usuarioexamen SET nota = :nota where id_Usuario = :u_id and id_Examen = :e_id");
+                
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -124,7 +134,7 @@
             // query crear respuestas con id pregunta
             // crear objetos respuestas
             foreach($respuestas as $letra => $respuesta) {
-                $newRespuestas[$letra] = $this->createAnswer($idPregunta, $respuesta, $letra==$respuestaCorrecta ? true : false, $letra);
+                $newRespuestas[$letra] = $this->createAnswer($idPregunta, $respuesta, $letra==$respuestaCorrecta ? 1 : 0, $letra);
             }
             
             // crear objeto pregunta que tiene respuestas
@@ -144,27 +154,21 @@
         {
             self::$queryGetQuestions->execute(array('id' => $examenId));
             $temas = [];
-            $repetido = true;
 
-            while($tema = self::$queryGetQuestions->fetch())
+            while($pregunta = self::$queryGetQuestions->fetch())
             {
-                foreach($temas as $temaActual)
-                {
-                    if($tema == $temaActual)
-                        $repetido = false;
-                }
-                if($repetido)
-                    $temas[] = $tema;
-                
-                $repetido = true;
+                $temas[] = $pregunta['id_Tema'];
             }
+
+            array_unique($temas);
+            
             return $temas;
         }
 
         public function getPendingTests($userId, $subjectId)
         {
             self::$queryGetPendingTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
-            $numPreguntas = self::$queryGetUser->rowCount();
+            $numPreguntas = self::$queryGetQuestions->rowCount();
             $tema = [];
             $tests = [];
 
@@ -182,7 +186,7 @@
         public function getActiveTests($userId, $subjectId)
         {
             self::$queryGetActiveTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
-            $numPreguntas = self::$queryGetUser->rowCount();
+            $numPreguntas = self::$queryGetQuestions->rowCount();
             $tema = [];
             $tests = [];
 
@@ -200,11 +204,47 @@
         public function getNOTActiveTests($userId, $subjectId)
         {
             self::$queryGetNOTActiveTests->execute(array('id'=> $userId, 'id_a' => $subjectId));
-            $numPreguntas = self::$queryGetUser->rowCount();
+            $numPreguntas = self::$queryGetQuestions->rowCount();
             $tema = [];
             $tests = [];
 
             while($test = self::$queryGetNOTActiveTests->fetch()) {
+                $testId = $test['id'];
+                self::$queryGetQuestions->execute(array('id' => $testId));
+                $tema = $this->getTemasExamen($testId);
+                $tests[$test['nombre']] = new Exam($testId, $test['id_Usuario'],
+                 $numPreguntas,  $subjectId, $test['nombre'], $tema, $test['descripcion'], $test['fecha_ini'], $test['fecha_fin']);
+
+            }
+            return $tests;
+        }
+
+        public function getActiveTestsStudent($subjectId)
+        {
+            self::$queryGetActiveTestsStudent->execute(array('id_a' => $subjectId));
+            $numPreguntas = self::$queryGetQuestions->rowCount();
+            $tema = [];
+            $tests = [];
+
+            while($test = self::$queryGetActiveTestsStudent->fetch()) {
+                $testId = $test['id'];
+                self::$queryGetQuestions->execute(array('id' => $testId));
+                $tema = $this->getTemasExamen($testId);
+                $tests[$test['nombre']] = new Exam($testId, $test['id_Usuario'],
+                 $numPreguntas,  $subjectId, $test['nombre'], $tema, $test['descripcion'], $test['fecha_ini'], $test['fecha_fin']);
+           
+            }
+            return $tests;
+        }
+
+        public function getNOTActiveTestsStudent($subjectId)
+        {
+            self::$queryGetNOTActiveTestsStudent->execute(array('id_a' => $subjectId));
+            $numPreguntas = self::$queryGetQuestions->rowCount();
+            $tema = [];
+            $tests = [];
+
+            while($test = self::$queryGetNOTActiveTestsStudent->fetch()) {
                 $testId = $test['id'];
                 self::$queryGetQuestions->execute(array('id' => $testId));
                 $tema = $this->getTemasExamen($testId);
@@ -276,7 +316,7 @@
         public function getAlumnsSubject($subjectId) {
             $alumns = [];
 
-            self::$queryGetAlumnsSubject->execute(array(':id_asignatura' =>$subjectId));
+            self::$queryGetAlumnsSubject->execute(array('id_asignatura' =>$subjectId));
 
             while($alumn = self::$queryGetAlumnsSubject->fetch()) {
                 $asignaturas = $this->getSubjects($alumn["id"]);
@@ -288,13 +328,54 @@
         }
 
         public function createAlumnExamn($userId, $examId) {
-            self::$queryCreateAlumnExamn->execute(array("id_usuario"=>$userId, "id_asignatura"=>$examId));
+            self::$queryCreateAlumnExamn->execute(array('id_usuario'=>$userId, 'id_examen'=>$examId));
         }
 
         public function getMark($userId, $examId)
         {
-            self::$queryGetNOTActiveTests->execute(array('u_id'=> $userId, 'e_id' => $examId));
-            return $nota = self::$queryGetMark->fetch();
+            self::$queryGetMark->execute(array('u_id'=> $userId, 'e_id' => $examId));
+            $nota = self::$queryGetMark->fetch();
+            return $nota['nota'];
+        }
+
+        public function setNota($nota, $userId, $examId)
+        {
+            self::$querySetNota->execute(array('nota' => $nota, 'u_id' => $userId, 'e_id' => $examId));
+        }
+
+        public function getPreguntas($examenId)
+        {
+            self::$queryGetQuestions->execute(array('id' => $examenId));
+            $preguntas = [];
+
+            while($pregunta = self::$queryGetQuestions->fetch())
+            {
+                $respuestas = $this->getRespuestas($pregunta['id']);
+                $respuestaCorrecta = NULL;
+                foreach($respuestas as $respuesta)
+                {
+                    if($respuesta->getEsCorrecta()) { $respuestaCorrecta = $respuesta; }
+                }
+                
+                $preguntas[$pregunta['nombre']] = new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta);
+            }
+
+            return $preguntas;
+        }
+
+        public function getRespuestas($idPregunta)
+        {
+            self::$queryGetAnswers->execute(array('id_pregunta' => $idPregunta));
+            $respuestas = [];
+
+            $letra = array('A', 'B', 'C', 'D');
+
+            while($respuesta = self::$queryGetAnswers->fetch())
+            {
+                $respuestas[$respuesta['nombre']] = new Answer($respuesta['id'], $respuesta['nombre'], $letra, $respuesta['verdadero']); 
+            }
+
+            return $respuestas;
         }
 
         public function getAllMarks($examId) {

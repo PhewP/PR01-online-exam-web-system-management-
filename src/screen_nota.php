@@ -16,7 +16,7 @@ function Nota()
     $nota = $api->getMark($user->getId(), $idExam);
 
 ?>
-    <button class = "button is-light"><?php echo $nota; ?></button>
+    <h1 class="title"><?php echo $nota; ?></h1>
     <div class="field is-grouped">
         </div>
         <a href="screen_student.php" class="button is-link is-light">Atrás</a> 

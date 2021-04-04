@@ -112,7 +112,7 @@ function CrearExamen() {
         $nombre = $_POST['titulo'];
         $numPreguntas = $_POST['numeroPreguntas'];
         $fecha = $_POST['fecha'];
-        $fecha_ini = $fecha." ".$_POST['horaInicio']."</br>";
+        $fecha_ini = $fecha." ".$_POST['horaInicio'];
         $fecha_fin = $fecha." ".$_POST['horaFin'];
         $descripcion = $_POST['descripcion'];
 
