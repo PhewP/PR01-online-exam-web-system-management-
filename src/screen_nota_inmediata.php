@@ -32,15 +32,22 @@ function Nota()
     echo "</br>";
     echo "</br>";
 
-    for($i=0 ; $i < count($_SESSION['respuestasIncorrectas']) ; $i++)
-   {
-    $j = 0;
-        $arrayRespuestas = $api->getRespuestas($_SESSION['respuestasIncorrectas'][$i]);
-        ?><b type = "text" name = "correcto" style="color: black;"><?php echo $api->getTituloPregunta($_SESSION['respuestasIncorrectas'][$i]); ?></b><?php
-        echo "</br>";
-            foreach($arrayRespuestas as $respuesta)
-            {
-                $letraCorrecta = $respuesta->getEsCorrecta();
+
+    $preguntas = $api->getPreguntas($idExam);
+    foreach($preguntas as $pregunta)
+    {
+        $j = 0;
+        $respuestas = $api->getRespuestas($pregunta->getId());
+        $api->getExamenPreguntaId($pregunta->getId(), $idExam);
+        if($api->getRespuestaUsuario($user->getId(), $idExam, $pregunta->getId()) == 0)
+        {
+            echo "Usted no ha dado respuesta a la siguiente pregunta:";
+            echo "</br>";
+        }
+        ?><b type = "text" name = "correcto" style="color: black;"><?php echo $api->getTituloPregunta($pregunta); ?></b><?php
+        foreach($respuestas as $respuesta)
+        {
+            $letraCorrecta = $respuesta->getEsCorrecta();
                 if($letraCorrecta)
                 {
                     ?><a type = "text" name = "correcto" style="color: green;"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion(); ?></a><?php
@@ -53,10 +60,10 @@ function Nota()
                     echo "</br>";
                     $j++;
                 }
-                
-            }
-            echo "</br>";
-   }
+        }
+        echo "</br>";
+    }
+
    echo "</br>";
    echo "</br>";
 
