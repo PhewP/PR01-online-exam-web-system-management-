@@ -7,20 +7,19 @@
     {
         $env = parse_ini_file("../.env");
         $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+
+        $user = unserialize($_SESSION['user']);
+        $preguntasIncorrectas = 0;
             
         if(isset($_POST['finalizar']))
         {
-            $user = unserialize($_SESSION['user']);
-
             $preguntas = $api->getPreguntas($_SESSION['idExamen']);
 
             $arrayPreguntas = array_values($preguntas);
 
             $ponderacion = 0.5 * count($arrayPreguntas) / 10;
 
-            $nPreguntasErroneas = count($_SESSION['respuestasIncorrectas']);
-
-            $cantidadNotaNegativa = $ponderacion * $nPreguntasErroneas;
+            $cantidadNotaNegativa = $ponderacion * $preguntasIncorrectas;
 
             $nota = round((10  * $_SESSION['nota'] / count($arrayPreguntas) ) - $cantidadNotaNegativa, 2);
 
@@ -85,12 +84,14 @@
                                                 ?><input type = "radio" name = "correcto" value = "true"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
+                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
                                             }
                                             else
                                             {
                                                 ?><input type = "radio" name = "correcto" value = "false"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
+                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
                                             }
                                         }
                                         ?>
@@ -108,7 +109,9 @@
                     }else{
                         if($_POST['correcto'] == 'false')
                         {
-                            $_SESSION['respuestasIncorrectas'][] = $arrayQuestions[$i-1]->getId();
+                            $preguntasIncorrectas++;
+                        }else{
+                            $api->setRespuestasUsuario($user->getId(), 0, $idExamen, $arrayQuestions[$i]->getId());
                         }
                     }
                 }else $_SESSION['nota'];
