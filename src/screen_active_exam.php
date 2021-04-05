@@ -81,17 +81,21 @@
                                             $letraCorrecta = $respuesta->getEsCorrecta();
                                             if($letraCorrecta)
                                             {
-                                                ?><input type = "radio" name = "correcto" value = "true"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                
+                                                ?>
+                                                <input type = "hidden" name = "id" value = "<?php echo $respuesta->getId(); ?>">
+                                                <input type = "radio" name = "correcto" value = "true"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
-                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
+                                                
                                             }
                                             else
                                             {
-                                                ?><input type = "radio" name = "correcto" value = "false"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                ?>
+                                                <input type = "hidden" name = "id" value = "<?php echo $respuesta->getId(); ?>">
+                                                <input type = "radio" name = "correcto" value = "false"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
-                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
                                             }
                                         }
                                         ?>
@@ -99,6 +103,13 @@
                                 </div>
                             </div>
                     <?php
+                }
+
+                if(isset($_POST['id']))
+                {
+                    $api->setRespuestasUsuario($user->getId(), $_POST['id'], $idExamen, $arrayQuestions[$i]->getId());
+                }else{
+                    $api->setRespuestasUsuario($user->getId(), 1, $idExamen, $arrayQuestions[$i-1]->getId());
                 }
                 
                 if(isset($_POST['correcto']))
@@ -110,10 +121,9 @@
                         if($_POST['correcto'] == 'false')
                         {
                             $preguntasIncorrectas++;
-                        }else{
-                            $api->setRespuestasUsuario($user->getId(), 1, $idExamen, $arrayQuestions[$i-1]->getId());
                         }
                     }
+
                 }else $_SESSION['nota'];
 
                 ?>
