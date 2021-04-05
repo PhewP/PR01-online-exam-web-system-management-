@@ -131,7 +131,7 @@ $temas = $asignatura->getTemas();
                 <option 
                     <?php 
                         if($actualizar){
-                            if($tema->getId() == $UQuestion->getTema());
+                            if($tema->getId() == $UQuestion->getTema())
                                 echo "Selected";
                         }
                     ?> 
