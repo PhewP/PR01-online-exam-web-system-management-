@@ -16,7 +16,13 @@
 
             $arrayPreguntas = array_values($preguntas);
 
-            $nota = 10  * $_SESSION['nota'] / count($arrayPreguntas);
+            $ponderacion = 0.5 * count($arrayPreguntas) / 10;
+
+            $nPreguntasErroneas = count($_SESSION['respuestasIncorrectas']);
+
+            $cantidadNotaNegativa = $ponderacion * $nPreguntasErroneas;
+
+            $nota = round((10  * $_SESSION['nota'] / count($arrayPreguntas) ) - $cantidadNotaNegativa, 2);
 
             if($nota < 0)
             { $nota = 0; }
@@ -60,7 +66,7 @@
 
                 for($i = $_SESSION['numPreguntaActual']; $i < $_SESSION['numPreguntaActual'] + $numElementos; $i++)
                 {
-                    echo $arrayQuestions[$i]->getEnunciado();
+                    echo "<h3 class='title'>".$arrayQuestions[$i]->getEnunciado()."</h3>";
                     ?>    
                         <form action="screen_active_exam.php?pag=<?php echo $_GET['pag'] + 1; ?>" method="POST">
                             <div class="field">
@@ -70,6 +76,7 @@
                                         $arrayQuestions[$i]->getId();
                                         $arrayRespuestas = $api->getRespuestas($arrayQuestions[$i]->getId());
                                         ?><input type = "radio" name = "correcto" value = "neutro" checked>Respuesta en blanco<?php
+                                        echo "</br>";
                                         foreach($arrayRespuestas as $respuesta)
                                         {
                                             $letraCorrecta = $respuesta->getEsCorrecta();
@@ -101,7 +108,6 @@
                     }else{
                         if($_POST['correcto'] == 'false')
                         {
-                            $_SESSION['nota'] = $_SESSION['nota'] - 0.5;
                             $_SESSION['respuestasIncorrectas'][] = $arrayQuestions[$i-1]->getId();
                         }
                     }
@@ -150,15 +156,33 @@
                     }
                 $idExamen = $_SESSION['idExamen'];
                 $descripcion = $api->getDescription($idExamen);
+
+                $infoExamen = $api->getExamInformation($idExamen);
                 ?>
-                    <h1 class="title">Instrucciones</h1>
+                    <h1 class="title">Instrucciones:</h1>
                 <?php
 
+                $questions = $api->getPreguntas($idExamen); 
+
+                $arrayQuestions = array_values($questions);
+                
                 echo $descripcion;
+                ?>
+                <h1 class="title">Titulo: </h1>
+                <?php
+                echo "<h3>".$infoExamen['nombre']."<h3> </br>";
+                echo "<h3 class='title'> Numero de preguntas: <h3>";
+                echo " ".$infoExamen['numeroPreguntas']."</br>";
+                echo "<h3 class='title'>Tiempo de inicio: <h3>";
+                echo " ".$api->getHoraComienzo($idExamen)."</br>";
+                echo "<h3 class='title'> Tiempo de Finalización: <h3>";
+                echo " ".$api->getHoraFin($idExamen)."</br>";
                 echo "</br>";
                 echo "</br>";
                 date_default_timezone_set('Europe/Madrid');
                 $now = date("Y-m-d H:i:s");
+
+
                 if($now > $api->getHoraComienzo($idExamen))
                 {
                 ?>
@@ -171,7 +195,7 @@
                 {
                     ?>
                     <form action="screen_active_exam.php?pag=1" method="POST">
-                        <input type="submit" class="button is-link" name="disable" value = "Comenzar intento">
+                        <input type="submit" class="button is-info is-light " name="disable" value = "Comenzar intento">
                     </form>
                 <?php
                 }

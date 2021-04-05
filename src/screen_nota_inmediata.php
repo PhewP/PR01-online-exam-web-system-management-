@@ -64,6 +64,7 @@ function Nota()
            <a href="screen_student.php" class="button is-link is-light">Atrás</a> 
     </div>
     <?php
+    $_SESSION['respuestasIncorrectas'] = NULL;
 
 }
 
