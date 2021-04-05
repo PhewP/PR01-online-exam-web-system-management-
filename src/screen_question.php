@@ -1,9 +1,44 @@
 <?php 
 include("base.php");
+session_start();
 
 function question () {
+    $actualizar = false; 
 
-session_start();
+    if(isset($_POST['actualizar'])) {
+        $actualizar = true;
+    
+        $env = parse_ini_file("../.env");
+      
+        $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
+
+        $UQuestion  = $api->getQuestionById($_POST['actualizar']);
+        $respuestas = $UQuestion->getRespuestas();
+
+        $i = 0;
+        $letras = array("A", "B", "C", "D");
+        $letraCorrecta = NULL;
+        $idRespuestas = [];
+        foreach($respuestas as $respuesta)
+        {
+            $Urespuesta[] = $respuesta->getDescripcion();
+            if($respuesta->getEsCorrecta()){
+                $letraCorrecta = $letras[$i];
+            }
+            $i++;
+
+            $idRespuestas[] = $respuesta->getId();
+        }
+
+        $_SESSION['idRespuestasActualizar'] = serialize($idRespuestas);
+        $_SESSION['idPreguntaActual'] = $UQuestion->getId();
+        
+        // Traerme preguntas
+    
+    
+    
+        // Traerme el tema;
+    }
 
 if(isset($POST['idSubject'])) {
     $idAsignatura = intval($_POST['idSubject']);
@@ -27,31 +62,38 @@ $temas = $asignatura->getTemas();
         <div class="field">
             <label class="label">Enunciado</label>
             <div class="control">
-            <textarea class="textarea" placeholder="Escriba el enunciado de la pregunta" name="enunciado" required></textarea>
+            <textarea class="textarea" placeholder="Escriba el enunciado de la pregunta" 
+            name="enunciado" required><?php if($actualizar){echo $UQuestion->getEnunciado();}?></textarea>
             </div>
         </div>
         <div class="field">
             <label class="label">Respuesta A</label>
             <div class="control">
-                <input class="input" type="text" placeholder="Inserte una respuesta" name="respuestaA" required>
+                <input class="input" value="<?php if($actualizar){echo $Urespuesta[0];}?>"
+                type="text" placeholder="Inserte una respuesta" name="respuestaA" required>
             </div>
         </div>
         <div class="field">
             <label class="label">Respuesta B</label>
             <div class="control">
-                <input class="input" type="text" placeholder="Inserte una respuesta" name="respuestaB" required>
+                <input value="<?php if($actualizar){echo $Urespuesta[1];}?>"
+                class="input" type="text" placeholder="Inserte una respuesta" name="respuestaB" required>
             </div>
         </div>
         <div class="field">
             <label class="label">Respuesta C</label>
             <div class="control">
-                <input class="input" type="text" placeholder="Inserte una respuesta" name="respuestaC" required>
+                <input value="<?php if($actualizar){echo $Urespuesta[2];}?>"
+
+                class="input" type="text" placeholder="Inserte una respuesta" name="respuestaC" required>
             </div>
         </div>
         <div class="field">
             <label class="label">Respuesta D</label>
             <div class="control">
-                <input class="input" type="text" placeholder="Inserte una respuesta" name="respuestaD" required>
+                <input 
+                value="<?php if($actualizar){echo $Urespuesta[3];}?>"
+                class="input" type="text" placeholder="Inserte una respuesta" name="respuestaD" required>
             </div>
         </div>
 
@@ -61,10 +103,18 @@ $temas = $asignatura->getTemas();
             <div class="select">
             <select name="respuestaCorrecta" class="has-text-centered" required>
                 <option disabled>Seleccione una opción</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
+                <option value="A" <?php 
+                if($actualizar && $letraCorrecta == "A"){ echo "Selected"; }?>>A</option>
+                <option value="B"
+                <?php 
+                if($actualizar && $letraCorrecta == "B"){ echo"Selected";}?>
+                >B</option>
+                <option value="C"
+                <?php 
+                if($actualizar && $letraCorrecta == "C"){ echo "Selected"; }?>>C</option>
+                <option value="D"
+                <?php 
+                if($actualizar && $letraCorrecta == "D"){ echo"Selected"; }?>>D</option>
             </select>
             </div>
         </div>
@@ -78,7 +128,14 @@ $temas = $asignatura->getTemas();
                 <?php
                     foreach($temas as $tema) {
                 ?>
-                <option value="<?php echo $tema->getId()?>">Tema <?php echo " ".$tema->getNumero().": ".$tema->getNombre()?></option>
+                <option 
+                    <?php 
+                        if($actualizar){
+                            if($tema->getId() == $UQuestion->getTema());
+                                echo "Selected";
+                        }
+                    ?> 
+                    value="<?php echo $tema->getId()?>">Tema <?php echo " ".$tema->getNumero().": ".$tema->getNombre()?></option>
                 <?php 
                     }
                 ?>
@@ -88,9 +145,20 @@ $temas = $asignatura->getTemas();
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <input type="submit" class="button is-link" name="crear" value="Crear">
+                <input type="submit" class="button is-link" name="crear" value=<?php echo $actualizar ? "Actualizar":"Crear"?> >
             </div>
-            <a href="screen_teacher.php" class="button is-link is-light">Atrás</a> 
+            <?php
+                if($actualizar)
+                {?>
+                    <a href="screen_question_list.php" class="button is-link is-light">Atrás</a> 
+                <?php
+                }
+                else {
+                    ?>
+                    <a href="screen_teacher.php" class="button is-link is-light">Atrás</a> 
+                    <?php
+                }
+            ?>
         </div>
         </form>
 
@@ -109,6 +177,13 @@ function preguntaCreada(){
     </div>
 <?php
 }
+function preguntaActualizada(){
+?>
+    <div class="field is-grouped">
+            <a href="screen_question_list.php" class="button is-link is-light">Atrás</a> 
+    </div>
+<?php
+}
 
 if(isset($_POST['crear'])) {
     $env = parse_ini_file("../.env");
@@ -119,11 +194,23 @@ if(isset($_POST['crear'])) {
     $respuestas['B'] = $_POST['respuestaB'];
     $respuestas['C'] = $_POST['respuestaC'];
     $respuestas['D'] = $_POST['respuestaD'];
-    $api->createQuestion($_POST['enunciado'],$respuestas, $_POST['respuestaCorrecta'], intval($_POST['tema']));
-    base("Pregunta Creada", 'preguntaCreada');
+    $enunciado = $_POST['enunciado'];
+    $respuestaCorrecta = $_POST['respuestaCorrecta'];
+    $idTema = $_POST['tema'];
+
+    if($_POST['crear'] == 'Crear') {
+
+        $api->createQuestion($_POST['enunciado'],$respuestas, $_POST['respuestaCorrecta'], intval($_POST['tema']));
+        base("Pregunta Creada", 'preguntaCreada');
+    }
+    else if($_POST['crear'] == 'Actualizar'){
+        $idRespuestas = unserialize($_SESSION['idRespuestasActualizar']);
+        $api->updateQuestion($_SESSION['idPreguntaActual'], $enunciado, $idRespuestas, $respuestas, $respuestaCorrecta, intval($_POST['tema']));
+        base("Pregunta Actualizada", 'preguntaActualizada');
+    }
 }
 else {
-    base('Crear Pregunta', 'question');
+    base(isset($_POST['actualizar'])?'Actualiza Pregunta':'Crear Pregunta', 'question');
 }
 
 

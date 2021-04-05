@@ -95,12 +95,20 @@
           </div>
         </form>
         
+        <form action="screen_question_list.php" method="POST">
+          <div class="control">
+          <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
+              <input type="submit" style="margin: 10px" class="button is-link" value="Preguntas">
+          </div>
+        </form>
+        
         <form action="screen_exam.php" method="POST">
           <div class="control">
           <input type = "hidden" name = "idSubject" value = "<?php echo $idSubject; ?>">
               <input type="submit" style="margin: 10px" class="button is-link" value="Crear Examen">
           </div>
         </form>
+
       </div>
   <?php 
     echo "<br>";

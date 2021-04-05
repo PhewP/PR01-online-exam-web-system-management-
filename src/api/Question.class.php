@@ -6,13 +6,19 @@
         private $respuestas;
         private $respuestaCorrecta;
         private $id;
+        private $invalida;
 
-        public function __construct($id, $enunciado, $tema, array $respuestas, $respuestaCorrecta) {
+        public function __construct($id, $enunciado, $tema, array $respuestas, $respuestaCorrecta, $invalida = NULL) {
             $this->enunciado = $enunciado;
             $this->tema = $tema;
             $this->respuestas = $respuestas;
             $this->respuestaCorrecta = $respuestaCorrecta;
             $this->id = $id;
+            $this->invalida = $invalida;
+        }
+
+        public function IsValida() {
+            return $this->invalida?false : true;
         }
 
         public function getId() {

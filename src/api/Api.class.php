@@ -26,9 +26,16 @@
         private static $queryGetNOTActiveTestsStudent;
         private static $queryGetPendingTestsStudent;
         private static $querySetNota;
+        private static $queryGetQuestionsSubject;
+        private static $queryGetTheme;
+        private static $querySetInvalidQuestion;
+        private static $queryDeleteQuestion;
+        private static $queryGetExamsQuestion;
+        private static $queryGetQuestionById;
+        private static $queryUpdateQuestion;
+        private static $queryUpdateAnswers;
         private static $queryGetInfoExamen;
         private static $queryGetTituloPregunta;
-
 
         public function __construct($host, $dbname, $user, $pass) {
             try {
@@ -84,6 +91,18 @@
                 self::$queryGetUsersExams = self::$conexion->prepare("SELECT * FROM  usuarioexamen WHERE id_examen = :id_examen");
                 
                 self::$querySetNota = self::$conexion->prepare("UPDATE usuarioexamen SET nota = :nota where id_Usuario = :u_id and id_Examen = :e_id");
+
+                self::$queryGetQuestionsSubject = self::$conexion->prepare("SELECT p1.* from  pregunta p1, asignatura s1, tema t1 
+                where s1.id = t1.id_Asignatura and s1.id = :id and p1.id_Tema = t1.id");
+
+                self::$queryGetTheme = self::$conexion->prepare("SELECT * from tema where id = :id");
+
+                self::$querySetInvalidQuestion = self::$conexion->prepare("UPDATE pregunta SET invalida = 1 where id = :id");
+                self::$queryDeleteQuestion = self::$conexion->prepare("DELETE from pregunta where id = :id");
+                self::$queryGetExamsQuestion = self::$conexion->prepare("SELECT * from examenpregunta where id_Pregunta = :id_Pregunta");
+                self::$queryGetQuestionById = self::$conexion->prepare("SELECT * from pregunta where id = :id");
+                self::$queryUpdateQuestion = self::$conexion->prepare("UPDATE pregunta SET id_Tema = :id_Tema, nombre = :nombre WHERE id = :id");
+                self::$queryUpdateAnswers = self::$conexion->prepare("UPDATE respuesta SET nombre = :nombre, verdadero = :verdadero WHERE id = :id");
                 self::$queryGetInfoExamen = self::$conexion->prepare("SELECT e.* FROM examen e where e.id = :id");
             
                 self::$queryGetTituloPregunta = self::$conexion->prepare("SELECT p.* FROM pregunta p where p.id = :id");
@@ -393,10 +412,11 @@
             $respuestas = [];
 
             $letra = array('A', 'B', 'C', 'D');
-
+            $i=0;
             while($respuesta = self::$queryGetAnswers->fetch())
             {
-                $respuestas[$respuesta['nombre']] = new Answer($respuesta['id'], $respuesta['nombre'], $letra, $respuesta['verdadero']); 
+                $respuestas[$respuesta['nombre']] = new Answer($respuesta['id'], $respuesta['nombre'], $letra[$i], $respuesta['verdadero']); 
+                $i++;
             }
 
             return $respuestas;
@@ -413,6 +433,81 @@
             return $notas;
         }
 
+        public function getQuestionsSubject($subjectId) {
+            self::$queryGetQuestionsSubject->execute(array('id'=>$subjectId));
+
+            while($pregunta = self::$queryGetQuestionsSubject->fetch())
+            {
+                $respuestas = $this->getRespuestas($pregunta['id']);
+                $respuestaCorrecta = NULL;
+                foreach($respuestas as $respuesta)
+                {
+                    if($respuesta->getEsCorrecta()) { $respuestaCorrecta = $respuesta; }
+                }
+                
+                $preguntas[$pregunta['nombre']] = new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta, $pregunta['invalida']);
+            }
+
+            return $preguntas;
+
+        }
+
+        public function getTheme($themeId) {
+            self::$queryGetTheme->execute(array('id'=> $themeId));
+
+            $tema = self::$queryGetTheme->fetch();
+
+            return new Tema($tema['id'], $tema['nombre'], $tema['numero']);
+        }
+
+        public function deleteQuestion($questionId) {
+            self::$queryGetExamsQuestion->execute(array('id_Pregunta'=>$questionId));
+
+            if(self::$queryGetExamsQuestion->rowCount() > 0) {
+                //invalida porque ya existe en examenes
+                self::$querySetInvalidQuestion->execute(array('id'=>$questionId));
+            }
+            else{
+                //borra porque no está asociada a ningun examen
+                self::$queryDeleteQuestion->execute(array('id'=>$questionId));
+            }
+        }
+
+        public function getQuestionById($questionId) {
+            self::$queryGetQuestionById->execute(array('id'=>$questionId));
+            $pregunta = NULL;
+
+            if(self::$queryGetQuestionById->rowCount() > 0) {
+                
+                $pregunta = self::$queryGetQuestionById->fetch();
+            
+                $respuestas = $this->getRespuestas($pregunta['id']);
+                $respuestaCorrecta = NULL;
+                foreach($respuestas as $respuesta)
+                {
+                    if($respuesta->getEsCorrecta()) { $respuestaCorrecta = $respuesta; }
+                }
+                
+                $pregunta= new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta);
+                
+            }
+            return $pregunta;
+        }
+
+        public function updateQuestion($questionId, $nombreQuestion, $respuestasId, $respuestasEnunciados, $respuestaCorrecta, $temaId) {
+
+            self::$queryUpdateQuestion->execute(array("id_Tema" =>$temaId, "nombre" =>$nombreQuestion, "id" => $questionId));
+
+            $i=0;
+            $letras = array('A', 'B', 'C', 'D');
+            $enunciadoRespuestaCorrecta = $respuestasEnunciados[$respuestaCorrecta];
+
+            foreach($respuestasId as $respuestaId){
+                $enunciado = $respuestasEnunciados[$letras[$i]];
+                self::$queryUpdateAnswers->execute(array("nombre"=>$enunciado,"verdadero"=>($enunciado == $enunciadoRespuestaCorrecta), "id" =>$respuestaId));
+                $i++;
+            }
+        }
         public function getDescription($examId)
         {
             self::$queryGetInfoExamen->execute(array('id' => $examId));
