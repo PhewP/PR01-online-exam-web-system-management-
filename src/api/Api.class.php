@@ -24,7 +24,10 @@
         private static $queryGetUsersExams;
         private static $queryGetActiveTestsStudent;
         private static $queryGetNOTActiveTestsStudent;
+        private static $queryGetPendingTestsStudent;
         private static $querySetNota;
+        private static $queryGetInfoExamen;
+        private static $queryGetTituloPregunta;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -53,6 +56,7 @@
                 self::$queryGetActiveTestsStudent = self::$conexion->prepare("SELECT e1.* FROM examen e1 where NOW() BETWEEN fecha_ini and fecha_fin and e1.id_Asignatura = :id_a");
 
                 self::$queryGetNOTActiveTestsStudent = self::$conexion->prepare("SELECT e2.* FROM examen e2 where fecha_fin <= NOW() and e2.id_Asignatura = :id_a");
+                self::$queryGetPendingTestsStudent = self::$conexion->prepare("SELECT e2.* FROM examen e2 where fecha_fin >= NOW() and e2.id_Asignatura = :id_a");
 
                 self::$queryGetQuestions = self::$conexion->prepare("SELECT p.* FROM pregunta p
                 INNER JOIN  examenpregunta ep ON p.id = ep.id_Pregunta
@@ -80,7 +84,9 @@
                 self::$queryGetUsersExams = self::$conexion->prepare("SELECT * FROM  usuarioexamen WHERE id_examen = :id_examen");
                 
                 self::$querySetNota = self::$conexion->prepare("UPDATE usuarioexamen SET nota = :nota where id_Usuario = :u_id and id_Examen = :e_id");
-                
+                self::$queryGetInfoExamen = self::$conexion->prepare("SELECT e.* FROM examen e where e.id = :id");
+            
+                self::$queryGetTituloPregunta = self::$conexion->prepare("SELECT p.* FROM pregunta p where p.id = :id");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -255,6 +261,24 @@
             return $tests;
         }
 
+        public function getPendingTestsStudent($subjectId)
+        {
+            self::$queryGetPendingTestsStudent->execute(array('id_a' => $subjectId));
+            $numPreguntas = self::$queryGetQuestions->rowCount();
+            $tema = [];
+            $tests = [];
+
+            while($test = self::$queryGetPendingTestsStudent->fetch()) {
+                $testId = $test['id'];
+                self::$queryGetQuestions->execute(array('id' => $testId));
+                $tema = $this->getTemasExamen($testId);
+                $tests[$test['nombre']] = new Exam($testId, $test['id_Usuario'],
+                 $numPreguntas,  $subjectId, $test['nombre'], $tema, $test['descripcion'], $test['fecha_ini'], $test['fecha_fin']);
+           
+            }
+            return $tests;
+        }
+
         public function getQuestionsTheme($temaId) {
             $preguntas = [];
             $respuestaCorrecta = NULL;
@@ -387,6 +411,34 @@
                 $notas[] = $examen['nota'];
             }
             return $notas;
+        }
+
+        public function getDescription($examId)
+        {
+            self::$queryGetInfoExamen->execute(array('id' => $examId));
+            $descripcion = self::$queryGetInfoExamen->fetch();
+            return $descripcion['descripcion'];
+        }
+
+        public function getHoraComienzo($examId)
+        {
+            self::$queryGetInfoExamen->execute(array('id' => $examId));
+            $fechaini = self::$queryGetInfoExamen->fetch();
+            return $fechaini['fecha_ini'];
+        }
+
+        public function getHoraFin($examId)
+        {
+            self::$queryGetInfoExamen->execute(array('id' => $examId));
+            $fechafin = self::$queryGetInfoExamen->fetch();
+            return $fechafin['fecha_fin'];
+        }
+
+        public function getTituloPregunta($idPregunta)
+        {
+            self::$queryGetTituloPregunta->execute(array('id' => $idPregunta));
+            $titulo = self::$queryGetTituloPregunta->fetch();
+            return $titulo['nombre'];
         }
     }
 ?>

@@ -20,7 +20,7 @@
 
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
-    $exams = $api->getActiveTestsStudent($idSubject);
+    $exams = $api->getPendingTestsStudent($idSubject);
 
     if($exams){
       echo "<hr>";
