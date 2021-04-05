@@ -30,6 +30,7 @@
         private static $querySetInvalidQuestion;
         private static $queryDeleteQuestion;
         private static $queryGetExamsQuestion;
+        private static $queryGetQuestionById;
 
         public function __construct($host, $dbname, $user, $pass) {
             try {
@@ -93,6 +94,7 @@
                 self::$querySetInvalidQuestion = self::$conexion->prepare("UPDATE pregunta SET invalida = 1 where id = :id");
                 self::$queryDeleteQuestion = self::$conexion->prepare("DELETE from pregunta where id = :id");
                 self::$queryGetExamsQuestion = self::$conexion->prepare("SELECT * from examenpregunta where id_Pregunta = :id_Pregunta");
+                self::$queryGetQuestionById = self::$conexion->prepare("SELECT * from pregunta where id = :id");
                 
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
@@ -440,6 +442,31 @@
                 //borra porque no está asociada a ningun examen
                 self::$queryDeleteQuestion->execute(array('id'=>$questionId));
             }
+        }
+
+        public function getQuestionById($questionId) {
+            self::$queryGetQuestionById->execute(array('id'=>$questionId));
+            $pregunta = NULL;
+
+            if(self::$queryGetQuestionById->rowCount() > 0) {
+                
+                $pregunta = self::$queryGetQuestionById->fetch();
+            
+                $respuestas = $this->getRespuestas($pregunta['id']);
+                $respuestaCorrecta = NULL;
+                foreach($respuestas as $respuesta)
+                {
+                    if($respuesta->getEsCorrecta()) { $respuestaCorrecta = $respuesta; }
+                }
+                
+                $pregunta= new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta);
+                
+            }
+
+
+            return $pregunta;
+
+
         }
     }
 ?>
