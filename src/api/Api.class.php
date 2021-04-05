@@ -31,6 +31,8 @@
         private static $queryDeleteQuestion;
         private static $queryGetExamsQuestion;
         private static $queryGetQuestionById;
+        private static $queryUpdateQuestion;
+        private static $queryUpdateAnswers;
 
         public function __construct($host, $dbname, $user, $pass) {
             try {
@@ -95,7 +97,8 @@
                 self::$queryDeleteQuestion = self::$conexion->prepare("DELETE from pregunta where id = :id");
                 self::$queryGetExamsQuestion = self::$conexion->prepare("SELECT * from examenpregunta where id_Pregunta = :id_Pregunta");
                 self::$queryGetQuestionById = self::$conexion->prepare("SELECT * from pregunta where id = :id");
-                
+                self::$queryUpdateQuestion = self::$conexion->prepare("UPDATE pregunta SET id_Tema = :id_Tema, nombre = :nombre WHERE id = :id");
+                self::$queryUpdateAnswers = self::$conexion->prepare("UPDATE respuesta SET nombre = :nombre, verdadero = :verdadero WHERE id = :id");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -384,10 +387,11 @@
             $respuestas = [];
 
             $letra = array('A', 'B', 'C', 'D');
-
+            $i=0;
             while($respuesta = self::$queryGetAnswers->fetch())
             {
-                $respuestas[$respuesta['nombre']] = new Answer($respuesta['id'], $respuesta['nombre'], $letra, $respuesta['verdadero']); 
+                $respuestas[$respuesta['nombre']] = new Answer($respuesta['id'], $respuesta['nombre'], $letra[$i], $respuesta['verdadero']); 
+                $i++;
             }
 
             return $respuestas;
@@ -462,10 +466,22 @@
                 $pregunta= new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta);
                 
             }
-
-
             return $pregunta;
+        }
 
+        public function updateQuestion($questionId, $nombreQuestion, $respuestasId, $respuestasEnunciados, $respuestaCorrecta, $temaId) {
+
+            self::$queryUpdateQuestion->execute(array("id_Tema" =>$temaId, "nombre" =>$nombreQuestion, "id" => $questionId));
+
+            $i=0;
+            $letras = array('A', 'B', 'C', 'D');
+            $enunciadoRespuestaCorrecta = $respuestasEnunciados[$respuestaCorrecta];
+
+            foreach($respuestasId as $respuestaId){
+                $enunciado = $respuestasEnunciados[$letras[$i]];
+                self::$queryUpdateAnswers->execute(array("nombre"=>$enunciado,"verdadero"=>($enunciado == $enunciadoRespuestaCorrecta), "id" =>$respuestaId));
+                $i++;
+            }
 
         }
     }
