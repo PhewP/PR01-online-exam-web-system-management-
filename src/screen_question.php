@@ -78,7 +78,7 @@ $temas = $asignatura->getTemas();
                 <?php
                     foreach($temas as $tema) {
                 ?>
-                <option value="<?php echo $tema->getNumero()?>">Tema <?php echo " ".$tema->getNumero().": ".$tema->getNombre()?></option>
+                <option value="<?php echo $tema->getId()?>">Tema <?php echo " ".$tema->getNumero().": ".$tema->getNombre()?></option>
                 <?php 
                     }
                 ?>

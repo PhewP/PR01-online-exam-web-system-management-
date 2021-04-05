@@ -41,7 +41,7 @@
                 inner join usuarioasignatura ua on s1.id = ua.id_Asignatura
                 inner join usuario us on us.id = ua.id_Usuario and us.id = :id");
 
-                self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_tema, nombre) VALUES(:id_tema, :nombre)");
+                self::$queryCreateQuestion = self::$conexion->prepare("INSERT INTO pregunta (id_Tema, nombre) VALUES(:id_Tema, :nombre)");
 
                 self::$queryCreateAnswer = self::$conexion->prepare("INSERT INTO respuesta(id_pregunta, nombre, verdadero) VALUES(:id_pregunta, :nombre, :verdadero)");
                 
@@ -71,7 +71,7 @@
                 
                 self::$queryCreateExamQuestion = self::$conexion->prepare("INSERT INTO examenpregunta(id_examen, id_pregunta) VALUES (:id_examen, :id_pregunta)");                                                
 
-                self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_tema = :id_tema");
+                self::$queryGetQuestionTheme = self::$conexion->prepare("SELECT * FROM pregunta where id_Tema = :id_Tema");
                 self::$queryGetAnswers = self::$conexion->prepare("SELECT * from respuesta where id_pregunta = :id_pregunta");
                 self::$queryGetAlumnsSubject = self::$conexion->prepare("SELECT u1.* FROM usuario u1
                 INNER JOIN usuarioasignatura ua1 ON u1.id = ua1.id_Usuario 
@@ -132,7 +132,7 @@
         public function createQuestion($nombre, $respuestas, $respuestaCorrecta, $temaId) {
             
             //query crear pregunta con tema.
-            self::$queryCreateQuestion->execute(array('id_tema'=>$temaId, 'nombre'=>$nombre));
+            self::$queryCreateQuestion->execute(array('id_Tema'=>$temaId, 'nombre'=>$nombre));
             // obtener el id de pregunta
             $idPregunta = self::$conexion->lastInsertId();
             
@@ -283,7 +283,7 @@
             $preguntas = [];
             $respuestaCorrecta = NULL;
 
-            self::$queryGetQuestionTheme->execute(array('id_tema'=>$temaId));
+            self::$queryGetQuestionTheme->execute(array('id_Tema'=>$temaId));
 
             while($pregunta = self::$queryGetQuestionTheme->fetch()) {
                 $idPregunta = $pregunta['id'];
