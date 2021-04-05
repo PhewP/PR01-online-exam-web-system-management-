@@ -53,7 +53,6 @@
       echo "<br>";
     }
 
-    echo "<hr>";
 
     $exams = $api->getNOTActiveTestsStudent($idSubject);
 
