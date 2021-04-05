@@ -27,7 +27,9 @@
         private static $querySetNota;
         private static $queryGetQuestionsSubject;
         private static $queryGetTheme;
-
+        private static $querySetInvalidQuestion;
+        private static $queryDeleteQuestion;
+        private static $queryGetExamsQuestion;
 
         public function __construct($host, $dbname, $user, $pass) {
             try {
@@ -88,8 +90,9 @@
 
                 self::$queryGetTheme = self::$conexion->prepare("SELECT * from tema where id = :id");
 
-                // self::$queryInvalidateQuestion = self::$conexion->prepare("UPDATE pregunta SET invalida = 1 where id = :id");
-                // self::$queryDeleteQuestion = self::$conexion->prepare("");
+                self::$querySetInvalidQuestion = self::$conexion->prepare("UPDATE pregunta SET invalida = 1 where id = :id");
+                self::$queryDeleteQuestion = self::$conexion->prepare("DELETE from pregunta where id = :id");
+                self::$queryGetExamsQuestion = self::$conexion->prepare("SELECT * from examenpregunta where id_Pregunta = :id_Pregunta");
                 
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
@@ -424,6 +427,19 @@
             $tema = self::$queryGetTheme->fetch();
 
             return new Tema($tema['id'], $tema['nombre'], $tema['numero']);
+        }
+
+        public function deleteQuestion($questionId) {
+            self::$queryGetExamsQuestion->execute(array('id_Pregunta'=>$questionId));
+
+            if(self::$queryGetExamsQuestion->rowCount() > 0) {
+                //invalida porque ya existe en examenes
+                self::$querySetInvalidQuestion->execute(array('id'=>$questionId));
+            }
+            else{
+                //borra porque no está asociada a ningun examen
+                self::$queryDeleteQuestion->execute(array('id'=>$questionId));
+            }
         }
     }
 ?>
