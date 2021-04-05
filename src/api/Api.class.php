@@ -186,7 +186,7 @@
                 $temas[] = $pregunta['id_Tema'];
             }
 
-            array_unique($temas);
+            $temas = array_unique($temas);
             
             return $temas;
         }
