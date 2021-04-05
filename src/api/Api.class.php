@@ -25,6 +25,8 @@
         private static $queryGetActiveTestsStudent;
         private static $queryGetNOTActiveTestsStudent;
         private static $querySetNota;
+        private static $queryGetQuestionsSubject;
+        private static $queryGetTheme;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -80,6 +82,14 @@
                 self::$queryGetUsersExams = self::$conexion->prepare("SELECT * FROM  usuarioexamen WHERE id_examen = :id_examen");
                 
                 self::$querySetNota = self::$conexion->prepare("UPDATE usuarioexamen SET nota = :nota where id_Usuario = :u_id and id_Examen = :e_id");
+
+                self::$queryGetQuestionsSubject = self::$conexion->prepare("SELECT p1.* from  pregunta p1, asignatura s1, tema t1 
+                where s1.id = t1.id_Asignatura and s1.id = :id and p1.id_Tema = t1.id");
+
+                self::$queryGetTheme = self::$conexion->prepare("SELECT * from tema where id = :id");
+
+                // self::$queryInvalidateQuestion = self::$conexion->prepare("UPDATE pregunta SET invalida = 1 where id = :id");
+                // self::$queryDeleteQuestion = self::$conexion->prepare("");
                 
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
@@ -387,6 +397,33 @@
                 $notas[] = $examen['nota'];
             }
             return $notas;
+        }
+
+        public function getQuestionsSubject($subjectId) {
+            self::$queryGetQuestionsSubject->execute(array('id'=>$subjectId));
+
+            while($pregunta = self::$queryGetQuestionsSubject->fetch())
+            {
+                $respuestas = $this->getRespuestas($pregunta['id']);
+                $respuestaCorrecta = NULL;
+                foreach($respuestas as $respuesta)
+                {
+                    if($respuesta->getEsCorrecta()) { $respuestaCorrecta = $respuesta; }
+                }
+                
+                $preguntas[$pregunta['nombre']] = new Question($pregunta['id'], $pregunta['nombre'], $pregunta['id_Tema'], $respuestas, $respuestaCorrecta, $pregunta['invalida']);
+            }
+
+            return $preguntas;
+
+        }
+
+        public function getTheme($themeId) {
+            self::$queryGetTheme->execute(array('id'=> $themeId));
+
+            $tema = self::$queryGetTheme->fetch();
+
+            return new Tema($tema['id'], $tema['nombre'], $tema['numero']);
         }
     }
 ?>
