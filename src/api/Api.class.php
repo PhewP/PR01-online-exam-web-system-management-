@@ -106,6 +106,7 @@
                 self::$queryGetInfoExamen = self::$conexion->prepare("SELECT e.* FROM examen e where e.id = :id");
             
                 self::$queryGetTituloPregunta = self::$conexion->prepare("SELECT p.* FROM pregunta p where p.id = :id");
+
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -513,6 +514,18 @@
             self::$queryGetInfoExamen->execute(array('id' => $examId));
             $descripcion = self::$queryGetInfoExamen->fetch();
             return $descripcion['descripcion'];
+        }
+
+        public function getExamInformation($examId) {
+            self::$queryGetInfoExamen->execute(array('id' => $examId));
+            $examRow = self::$queryGetInfoExamen->fetch();
+
+            $nPreguntas = count($this->getPreguntas($examId));
+
+            $examInfo = array("fecha_ini"=>$examRow['fecha_ini'], "fecha_fin"=>$examRow['fecha_fin'], 
+            "nombre"=>$examRow['nombre'], "descripcion"=>$examRow['descripcion'], "numeroPreguntas"=>$nPreguntas);
+
+            return $examInfo;
         }
 
         public function getHoraComienzo($examId)
