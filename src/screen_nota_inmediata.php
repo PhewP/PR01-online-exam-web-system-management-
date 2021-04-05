@@ -34,23 +34,34 @@ function Nota()
 
 
     $preguntas = $api->getPreguntas($idExam);
+
     foreach($preguntas as $pregunta)
     {
         $j = 0;
         $respuestas = $api->getRespuestas($pregunta->getId());
         $api->getExamenPreguntaId($pregunta->getId(), $idExam);
-        if($api->getRespuestaUsuario($user->getId(), $idExam, $pregunta->getId()) == 0)
+        $infoRespuesta = $api->getRespuestaUsuario($user->getId(), $idExam, $pregunta->getId());
+        // if($api->getRespuestaUsuario($user->getId(), $idExam, $pregunta->getId()) == 1)
+        if($infoRespuesta['idRespuesta'] == 1)
         {
             echo "Usted no ha dado respuesta a la siguiente pregunta:";
             echo "</br>";
         }
-        ?><b type = "text" name = "correcto" style="color: black;"><?php echo $api->getTituloPregunta($pregunta); ?></b><?php
+        ?><b type = "text" name = "correcto" style="color: black;"><?php echo $api->getTituloPregunta($pregunta->getId()); ?></b><?php
+        echo "</br>";
         foreach($respuestas as $respuesta)
         {
             $letraCorrecta = $respuesta->getEsCorrecta();
                 if($letraCorrecta)
                 {
                     ?><a type = "text" name = "correcto" style="color: green;"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion(); ?></a><?php
+                    echo "</br>";
+                    $j++;
+                }
+                else if($respuesta->getId() == $infoRespuesta['idRespuesta']) {
+                    echo $infoRespuesta['idRespuesta'];
+                    echo $respuesta->getId();
+                    ?><a type = "text" name = "correcto" style="color: red;"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion(); ?></a><?php
                     echo "</br>";
                     $j++;
                 }

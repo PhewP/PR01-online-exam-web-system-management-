@@ -65,7 +65,7 @@
 
                 for($i = $_SESSION['numPreguntaActual']; $i < $_SESSION['numPreguntaActual'] + $numElementos; $i++)
                 {
-                    echo "<h3 class='title'>".$arrayQuestions[$i]->getEnunciado()."</h3>";
+                    echo "<h3 class='title'> Pregunta $i: ".$arrayQuestions[$i]->getEnunciado()."</h3>";
                     ?>    
                         <form action="screen_active_exam.php?pag=<?php echo $_GET['pag'] + 1; ?>" method="POST">
                             <div class="field">
@@ -111,7 +111,7 @@
                         {
                             $preguntasIncorrectas++;
                         }else{
-                            $api->setRespuestasUsuario($user->getId(), 0, $idExamen, $arrayQuestions[$i]->getId());
+                            $api->setRespuestasUsuario($user->getId(), 1, $idExamen, $arrayQuestions[$i-1]->getId());
                         }
                     }
                 }else $_SESSION['nota'];
@@ -125,6 +125,7 @@
                     // Si existe la paginacion 
                     if (isset($_GET['pag'])) {
                         // Si el numero de registros actual es superior al maximo
+                        // Si pongo esto a menos uno no peta pero no sale la última
                         if ((($pagina) * $numElementos + 1) < count($arrayQuestions)) {
                             date_default_timezone_set('Europe/Madrid');
                             $now = date("Y-m-d H:i:s");
@@ -200,8 +201,13 @@
                     <form action="screen_active_exam.php?pag=1" method="POST">
                         <input type="submit" class="button is-info is-light " name="disable" value = "Comenzar intento">
                     </form>
+                    
+                    <div class="field is-grouped">
+                    <a href="screen_student.php" class="button is-link is-light">Atrás</a> 
+                    </div>
                 <?php
                 }
+
                 
 
             }

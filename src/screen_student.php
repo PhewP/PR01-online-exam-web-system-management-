@@ -66,7 +66,7 @@
     foreach($exams as $exam)
     {
     ?>
-      <form action="screen_nota.php" method="POST">
+      <form action="screen_nota_inmediata.php" method="POST">
         <div class="field">
           <input type = "hidden" name = "exam" value = "<?php echo $exam->getId(); ?>">
           <button class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>

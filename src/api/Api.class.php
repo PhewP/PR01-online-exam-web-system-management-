@@ -117,7 +117,7 @@
 
                 self::$querySetRespuestasUsuario = self::$conexion->prepare("INSERT INTO usuariorespuestas(id_Examenpregunta, id_Usuario, id_Respuesta) VALUES(:id_examenpregunta, :id_usuario, :id_respuesta)");
                 self::$queryGetExamenPregunta = self::$conexion->prepare("SELECT ep.* FROM examenpregunta ep where ep.id_examen = :id_e and ep.id_pregunta = :id_p");
-                self::$queryGetIdRespuestaUsuario= self::$conexion->prepare("SELECT ru.id_respuesta FROM usuariopregunta ru WHERE ru.id_examenpregunta = :id_ep and ru.id_Usuario = :u_id");
+                self::$queryGetIdRespuestaUsuario= self::$conexion->prepare("SELECT ru.id_respuesta FROM usuariorespuestas ru WHERE ru.id_examenpregunta = :id_ep and ru.id_Usuario = :u_id");
 
                 self::$queryDeleteExamenPregunta = self::$conexion->prepare("DELETE from examenpregunta where id_Examen = :id_Examen");
                 self::$queryDeleteUsuarioExamen = self::$conexion->prepare("DELETE from usuarioexamen where id_Examen = :id_Examen");
@@ -583,10 +583,16 @@
 
         public function getRespuestaUsuario($userId, $examenId, $preguntaId)
         {
+            $infoRespuesta = NULL;
             $examenPreguntaId = $this->getExamenPreguntaId($preguntaId, $examenId);
-            self::$queryGetIdRespuestaUsuario->execute(array('id_examenpregunta' => $examenPreguntaId, 'id_usuario' => $userId,));
+            self::$queryGetIdRespuestaUsuario->execute(array('id_ep' => $examenPreguntaId, 'u_id' => $userId));
+            $respuestaUsuario = self::$queryGetIdRespuestaUsuario->fetch();
 
-            return self::$queryGetIdRespuestaUsuario->fetch();
+            if(self::$queryGetIdRespuestaUsuario->rowCount() > 0) {
+                $infoRespuesta['idRespuesta'] = $respuestaUsuario['id_respuesta'];
+            }
+
+            return $infoRespuesta;
         }
 
         public function deleteExamen($examenId) {
