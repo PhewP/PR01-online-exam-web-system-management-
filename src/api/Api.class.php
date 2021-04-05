@@ -37,6 +37,11 @@
         private static $queryGetInfoExamen;
         private static $queryGetTituloPregunta;
 
+        private static $queryDeleteExamenPregunta;
+        private static $queryDeleteUsuarioExamen;
+        private static $queryDeleteExamen;
+
+
         public function __construct($host, $dbname, $user, $pass) {
             try {
                 self::$conexion = new PDO("mysql:host=".$host.";dbname=".$dbname, $user, $pass);
@@ -106,6 +111,10 @@
                 self::$queryGetInfoExamen = self::$conexion->prepare("SELECT e.* FROM examen e where e.id = :id");
             
                 self::$queryGetTituloPregunta = self::$conexion->prepare("SELECT p.* FROM pregunta p where p.id = :id");
+
+                self::$queryDeleteExamenPregunta = self::$conexion->prepare("DELETE from examenpregunta where id_Examen = :id_Examen");
+                self::$queryDeleteUsuarioExamen = self::$conexion->prepare("DELETE from usuarioexamen where id_Examen = :id_Examen");
+                self::$queryDeleteExamen = self::$conexion->prepare("DELETE from examen where id = :id");
 
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
@@ -547,6 +556,12 @@
             self::$queryGetTituloPregunta->execute(array('id' => $idPregunta));
             $titulo = self::$queryGetTituloPregunta->fetch();
             return $titulo['nombre'];
+        }
+
+        public function deleteExamen($examenId) {
+            self::$queryDeleteExamenPregunta->execute(array("id_Examen"=>$examenId));
+            self::$queryDeleteUsuarioExamen->execute(array("id_Examen"=>$examenId));
+            self::$queryDeleteExamen->execute(array("id"=>$examenId));
         }
     }
 ?>
