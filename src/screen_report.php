@@ -18,7 +18,7 @@ function report(){
     $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
     $notas = $api->getAllMarks($idExamen);
-
+if(!empty($notas)){
     $numExamenes = count($notas);
     $notaMasAlta = max($notas);
     $notaMasBaja = min($notas);
@@ -31,6 +31,7 @@ function report(){
     $ratioAprobados =  round($numeroDeAprobados / $numExamenes,2);
 
     $notaMedia= round(array_sum($notas) / $numExamenes);
+
     ?>
     
     <div class="tile is-ancestor">
@@ -77,6 +78,9 @@ function report(){
     </article>
   </div>
 </div>
+<?php
+}
+?>
 <div class="field is-grouped">
                 <div class="control">    
                 </div>
@@ -84,5 +88,6 @@ function report(){
         </div>
 <?php
 }
+
 Base("Informe", "report");
 ?>

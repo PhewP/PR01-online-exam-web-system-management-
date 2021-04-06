@@ -43,6 +43,7 @@
         private static $queryDeleteExamenPregunta;
         private static $queryDeleteUsuarioExamen;
         private static $queryDeleteExamen;
+        private static $queryDefinitiva;
 
 
         public function __construct($host, $dbname, $user, $pass) {
@@ -115,15 +116,14 @@
             
                 self::$queryGetTituloPregunta = self::$conexion->prepare("SELECT p.* FROM pregunta p where p.id = :id");
 
-                self::$querySetRespuestasUsuario = self::$conexion->prepare("INSERT INTO usuariorespuestas(id_Examenpregunta, id_Usuario, id_Respuesta) VALUES(:id_examenpregunta, :id_usuario, :id_respuesta)");
+                self::$querySetRespuestasUsuario = self::$conexion->prepare("INSERT INTO usuariorespuestas(id_Examen, id_Pregunta, id_Usuario, id_Respuesta) VALUES(:id_examen, :id_pregunta, :id_usuario, :id_respuesta)");
                 self::$queryGetExamenPregunta = self::$conexion->prepare("SELECT ep.* FROM examenpregunta ep where ep.id_examen = :id_e and ep.id_pregunta = :id_p");
-                self::$queryGetIdRespuestaUsuario= self::$conexion->prepare("SELECT ru.id_respuesta FROM usuariorespuestas ru WHERE ru.id_examenpregunta = :id_ep and ru.id_Usuario = :u_id");
+                self::$queryGetIdRespuestaUsuario= self::$conexion->prepare("SELECT ru.* FROM usuariorespuestas ru WHERE ru.id_examen = :id_e and ru.id_pregunta = :id_p and ru.id_usuario = :u_id");
 
                 self::$queryDeleteExamenPregunta = self::$conexion->prepare("DELETE from examenpregunta where id_Examen = :id_Examen");
                 self::$queryDeleteUsuarioExamen = self::$conexion->prepare("DELETE from usuarioexamen where id_Examen = :id_Examen");
                 self::$queryDeleteExamen = self::$conexion->prepare("DELETE from examen where id = :id");
-
-
+                self::$queryDefinitiva = self::$conexion->prepare("SELECT e.* FROM usuariorespuestas e where e.id = :id");
             } catch(Exception $e) {
                 die("Error :".$e->getMessage());
             } 
@@ -522,7 +522,7 @@
 
             foreach($respuestasId as $respuestaId){
                 $enunciado = $respuestasEnunciados[$letras[$i]];
-                self::$queryUpdateAnswers->execute(array("nombre"=>$enunciado,"verdadero"=>($enunciado == $enunciadoRespuestaCorrecta), "id" =>$respuestaId));
+                self::$queryUpdateAnswers->execute(array("nombre"=>$enunciado,"verdadero"=>($enunciado == $enunciadoRespuestaCorrecta?1 : 0), "id" =>$respuestaId));
                 $i++;
             }
         }
@@ -577,22 +577,15 @@
 
         public function setRespuestasUsuario($userId, $respuestaId, $examenId, $preguntaId)
         {
-            $examenPreguntaId = $this->getExamenPreguntaId($preguntaId, $examenId);
-            self::$querySetRespuestasUsuario->execute(array('id_examenpregunta' => $examenPreguntaId, 'id_usuario' => $userId, 'id_respuesta' => $respuestaId));
+            self::$querySetRespuestasUsuario->execute(array('id_examen' => $examenId, 'id_pregunta' => $preguntaId, 'id_usuario' => $userId, 'id_respuesta' => $respuestaId));
         }
 
         public function getRespuestaUsuario($userId, $examenId, $preguntaId)
         {
-            $infoRespuesta = NULL;
-            $examenPreguntaId = $this->getExamenPreguntaId($preguntaId, $examenId);
-            self::$queryGetIdRespuestaUsuario->execute(array('id_ep' => $examenPreguntaId, 'u_id' => $userId));
+            self::$queryGetIdRespuestaUsuario->execute(array('id_e' => $examenId, 'id_p' => $preguntaId, 'u_id' => $userId));
             $respuestaUsuario = self::$queryGetIdRespuestaUsuario->fetch();
 
-            if(self::$queryGetIdRespuestaUsuario->rowCount() > 0) {
-                $infoRespuesta['idRespuesta'] = $respuestaUsuario['id_respuesta'];
-            }
-
-            return $infoRespuesta;
+            return $respuestaUsuario['id_respuesta'];
         }
 
         public function deleteExamen($examenId) {
@@ -600,6 +593,24 @@
             self::$queryDeleteUsuarioExamen->execute(array("id_Examen"=>$examenId));
             self::$queryDeleteExamen->execute(array("id"=>$examenId));
 
+        }
+
+        public function ultimo($userId, $examenId, $preguntaId)
+        {
+            self::$queryGetIdRespuestaUsuario->execute(array('id_e' => $examenId, 'id_p' => $preguntaId, 'u_id' => $userId));
+            $respuestaUsuario = self::$queryGetIdRespuestaUsuario->fetch();
+
+            $useridsiguiente = $respuestaUsuario['id'];
+
+            $useridsiguiente = $useridsiguiente + 1;
+
+            self::$queryDefinitiva->execute(array('id' => $useridsiguiente));
+
+            $respuestaUsuario1 = self::$queryDefinitiva->fetch();
+
+            $respuestaUsuario1['id_respuesta'];
+
+            return $respuestaUsuario1['id_respuesta'];
         }
     }
 ?>
