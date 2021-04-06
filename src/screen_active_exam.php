@@ -5,14 +5,43 @@
 
     function ExamenActual()
     {
+        
         $env = parse_ini_file("../.env");
         $api = new Api($env['DB_HOST'], $env['DB_NAME'], $env['DB_USER'], $env['DB_PASSWORD']);
 
         $user = unserialize($_SESSION['user']);
         $preguntasIncorrectas = 0;
+
+        if(isset($_POST['exam']))
+        {$_SESSION['idExamen'] = $_POST['exam'];}
+
+        
+        $questions = $api->getPreguntas($_SESSION['idExamen']); 
+
+        $arrayQuestions = array_values($questions);
+        $_SESSION['nota'] = 0; 
             
         if(isset($_POST['finalizar']))
         {
+
+            if(isset($_POST['correcto']))
+            {
+                $idRespuesta = explode(",", $_POST['correcto']);
+                if($idRespuesta[0] == 'true')
+                {
+                    $_SESSION['nota']++;
+                    $api->setRespuestasUsuario($user->getId(), $idRespuesta[1], $_SESSION['idExamen'], $arrayQuestions[count($arrayQuestions)-1]->getId());
+                }else{
+                    if($idRespuesta[0] == 'false')
+                    {
+                        $preguntasIncorrectas++;
+                        $api->setRespuestasUsuario($user->getId(), $idRespuesta[1], $_SESSION['idExamen'], $arrayQuestions[count($arrayQuestions)-1]->getId());
+                    }
+                }
+            }
+
+            $idRespuesta = explode(",", $_POST['correcto']);
+            echo count($arrayQuestions);            
             $preguntas = $api->getPreguntas($_SESSION['idExamen']);
 
             $arrayPreguntas = array_values($preguntas);
@@ -21,7 +50,7 @@
 
             $cantidadNotaNegativa = $ponderacion * $preguntasIncorrectas;
 
-            $nota = round((10  * $_SESSION['nota'] / count($arrayPreguntas) ) - $cantidadNotaNegativa, 2);
+            echo $nota = round((10  * $_SESSION['nota'] / count($arrayPreguntas) ) - $cantidadNotaNegativa, 2);
 
             if($nota < 0)
             { $nota = 0; }
@@ -49,10 +78,6 @@
 
                 $j = 0;
 
-                $questions = $api->getPreguntas($idExamen); 
-
-                $arrayQuestions = array_values($questions);
-
                 $_SESSION['numPreguntaActual'] = 0; 
 
                 if(isset($_SESSION['numPreguntaActual']) && count($arrayQuestions) > $_SESSION['numPreguntaActual'])
@@ -65,7 +90,7 @@
 
                 for($i = $_SESSION['numPreguntaActual']; $i < $_SESSION['numPreguntaActual'] + $numElementos; $i++)
                 {
-                    echo "<h3 class='title'> Pregunta $i: ".$arrayQuestions[$i]->getEnunciado()."</h3>";
+                    echo "<h3 class='title'> Pregunta " . ($i+1) . " : ".$arrayQuestions[$i]->getEnunciado()."</h3>";
                     ?>    
                         <form action="screen_active_exam.php?pag=<?php echo $_GET['pag'] + 1; ?>" method="POST">
                             <div class="field">
@@ -74,24 +99,39 @@
                                         <?php
                                         $arrayQuestions[$i]->getId();
                                         $arrayRespuestas = $api->getRespuestas($arrayQuestions[$i]->getId());
-                                        ?><input type = "radio" name = "correcto" value = "neutro" checked>Respuesta en blanco<?php
-                                        echo "</br>";
+                                        /* ?><input type = "radio" name = "correcto" value = "neutro" checked>Respuesta en blanco<?php
+                                        echo "</br>"; */
                                         foreach($arrayRespuestas as $respuesta)
                                         {
                                             $letraCorrecta = $respuesta->getEsCorrecta();
                                             if($letraCorrecta)
                                             {
-                                                ?><input type = "radio" name = "correcto" value = "true"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                if($j == 0)
+                                                {
+                                                    ?>
+                                                <input type = "radio" name = "correcto" value = "<?php echo "true,".$respuesta->getId(); ?>" checked><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
-                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
+                                                }else{
+                                                ?>
+                                                <input type = "radio" name = "correcto" value = "<?php echo "true,".$respuesta->getId(); ?>"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                echo "</br>";
+                                                $j++;}
+                                                
                                             }
                                             else
                                             {
-                                                ?><input type = "radio" name = "correcto" value = "false"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                if($j == 0)
+                                                {
+                                                ?>
+                                                <input type = "radio" name = "correcto" value = "<?php echo "false,".$respuesta->getId(); ?>" checked><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
                                                 echo "</br>";
                                                 $j++;
-                                                $api->setRespuestasUsuario($user->getId(), $respuesta->getId(), $idExamen, $arrayQuestions[$i]->getId());
+                                                }else{
+                                                ?>
+                                                <input type = "radio" name = "correcto" value = "<?php echo "false,".$respuesta->getId(); ?>"><?php echo $arrayLetras[$j] . " . " . $respuesta->getDescripcion();
+                                                echo "</br>";
+                                                $j++;}
                                             }
                                         }
                                         ?>
@@ -100,20 +140,23 @@
                             </div>
                     <?php
                 }
+
                 
                 if(isset($_POST['correcto']))
                 {
-                    if($_POST['correcto'] == 'true')
+                    $idRespuesta = explode(",", $_POST['correcto']);
+                    if($idRespuesta[0] == 'true')
                     {
                         $_SESSION['nota']++;
+                        $api->setRespuestasUsuario($user->getId(), $idRespuesta[1], $idExamen, $arrayQuestions[$i-1]->getId());
                     }else{
-                        if($_POST['correcto'] == 'false')
+                        if($idRespuesta[0] == 'false')
                         {
                             $preguntasIncorrectas++;
-                        }else{
-                            $api->setRespuestasUsuario($user->getId(), 1, $idExamen, $arrayQuestions[$i-1]->getId());
+                            $api->setRespuestasUsuario($user->getId(), $idRespuesta[1], $idExamen, $arrayQuestions[$i-1]->getId());
                         }
                     }
+
                 }else $_SESSION['nota'];
 
                 ?>
@@ -156,7 +199,6 @@
                 if(isset($_POST['exam']))
                     { 
                         $_SESSION['idExamen'] = $_POST['exam'];
-                        $_SESSION['nota'] = 0; 
                     }
                 $idExamen = $_SESSION['idExamen'];
                 $descripcion = $api->getDescription($idExamen);

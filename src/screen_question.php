@@ -173,7 +173,7 @@ function preguntaCreada(){
             <a href="screen_question.php" class="button is-link">Crear Otra</a> 
 
             </div>
-            <a href="screen_question_list" class="button is-link is-light">Atrás</a> 
+            <a href="screen_question_list.php" class="button is-link is-light">Atrás</a> 
     </div>
 <?php
 }

@@ -35,7 +35,7 @@
       <form action="screen_active_exam.php" method="POST">
         <div class="field">
           <?php
-          if($api->getMark($user->getId(), $exam->getId()))
+          if($api->getMark($user->getId(), $exam->getId()) != NULL)
           {
           ?>
             <button disabled class = "button is-link is-light"><?php echo $exam->getTitulo(); ?></button>
